@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+/* ==========================================
+   AGENTIC EDGE TRAFFIC — CLEAN LIGHT THEME
+   ========================================== */
+
+:root {
+  --bg-primary: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-hover: rgba(99, 102, 241, 0.25);
+
+  --green-signal: #16a34a;
+  --red-signal: #dc2626;
+  --green-glow: 0 0 14px rgba(22, 163, 74, 0.5), 0 0 28px rgba(22, 163, 74, 0.2);
+  --red-glow: 0 0 10px rgba(220, 38, 38, 0.35), 0 0 20px rgba(220, 38, 38, 0.15);
+
+  --accent-indigo: #6366f1;
+  --accent-cyan: #0891b2;
+  --emergency-red: #dc2626;
+  --emergency-glow: 0 0 20px rgba(220, 38, 38, 0.5), 0 0 40px rgba(220, 38, 38, 0.2);
+  --green-wave-gradient: linear-gradient(135deg, #059669, #0891b2, #16a34a);
+  --green-wave-glow: 0 0 30px rgba(5, 150, 105, 0.35);
+}
+
+/* Card */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+}
+
+/* Signal animations */
+@keyframes signal-pulse-green {
+  0%, 100% { box-shadow: var(--green-glow); }
+  50% { box-shadow: 0 0 20px rgba(22,163,74,0.7), 0 0 40px rgba(22,163,74,0.35); }
+}
+@keyframes signal-pulse-red {
+  0%, 100% { box-shadow: var(--red-glow); }
+  50% { box-shadow: 0 0 6px rgba(220,38,38,0.3); }
+}
+.signal-green {
+  background-color: var(--green-signal);
+  box-shadow: var(--green-glow);
+  animation: signal-pulse-green 2s ease-in-out infinite;
+}
+.signal-red {
+  background-color: var(--red-signal);
+  box-shadow: var(--red-glow);
+  animation: signal-pulse-red 3s ease-in-out infinite;
+}
+
+/* Emergency */
+@keyframes emergency-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}
+.emergency-active {
+  animation: emergency-pulse 0.8s ease-in-out infinite;
+}
+
+/* Green Wave */
+@keyframes green-wave-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes dash-march {
+  to { stroke-dashoffset: -20; }
+}
+.green-wave-path {
+  background: var(--green-wave-gradient);
+  background-size: 200% 200%;
+  animation: green-wave-flow 3s ease infinite;
+  box-shadow: var(--green-wave-glow);
+}
+
+/* Ambulance */
+@keyframes ambulance-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.ambulance-icon {
+  animation: ambulance-bounce 0.6s ease-in-out infinite;
+}
+
+/* Density bar */
+.density-bar-fill {
+  transition: width 0.5s ease-out, background-color 0.3s ease;
+}
+
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.2); border-radius: 4px; }
+
+/* Map canvas */
+.map-canvas { cursor: grab; touch-action: none; }
+.map-canvas:active { cursor: grabbing; }
+.map-transform {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Log entry */
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.log-entry { animation: slide-in 0.3s ease-out; }
+
+/* Button */
+.btn-glow:hover {
+  box-shadow: 0 0 16px rgba(99,102,241,0.2);
+}
+
+/* Minimap */
+.minimap-viewport {
+  border: 1.5px solid rgba(99,102,241,0.5);
+  background: rgba(99,102,241,0.08);
+}

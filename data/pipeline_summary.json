@@ -1,0 +1,44 @@
+{
+  "total_rows": 8170,
+  "valid_resolution": 3134,
+  "class_counts": {
+    "acute": 5450,
+    "chronic": 1732,
+    "unknown": 521,
+    "planned": 467
+  },
+  "cause_counts": {
+    "vehicle_breakdown": 4900,
+    "construction": 552,
+    "pot_holes": 541,
+    "others": 518,
+    "water_logging": 481,
+    "accident": 372,
+    "tree_fall": 302,
+    "road_conditions": 170,
+    "congestion": 140,
+    "public_event": 84,
+    "procession": 72,
+    "vip_movement": 20,
+    "protest": 15,
+    "Fog / Low Visibility": 2,
+    "debris": 1
+  },
+  "corridor_counts": {
+    "Non-corridor": 3142,
+    "Mysore Road": 743,
+    "Bellary Road 1": 610,
+    "Tumkur Road": 458,
+    "Bellary Road 2": 379,
+    "Hosur Road": 298,
+    "ORR North 1": 275,
+    "Old Madras Road": 263,
+    "Magadi Road": 245,
+    "ORR East 1": 244,
+    "ORR North 2": 235,
+    "Bannerghata Road": 209,
+    "ORR East 2": 187,
+    "West of Chord Road": 174,
+    "ORR West 1": 168
+  }
+}

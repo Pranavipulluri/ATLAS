@@ -1,0 +1,115 @@
+{
+  "road_surface": {
+    "threshold_u_mins": 72498.84441484584,
+    "threshold_u_days": 50.34641973253183,
+    "N_total": 266,
+    "N_exceedances": 40,
+    "xi": -0.6779546588809646,
+    "sigma": 73863.6772698238,
+    "tail_type": "bounded",
+    "return_30d_mins": 178443.7159765896,
+    "return_30d_days": 123.919247205965,
+    "return_90d_mins": 180022.3354467737,
+    "return_90d_days": 125.01551072692618,
+    "return_180d_mins": 180557.48988399142,
+    "return_180d_days": 125.38714575277183,
+    "ci_30d_lo_days": 57.68493709278067,
+    "ci_30d_hi_days": 71.98442816244294,
+    "policy_implication": "BOUNDED TAIL (\u03be=-0.678): Worst-case duration is mathematically capped. Standard planning with 124 day buffer is adequate.",
+    "group": "road_surface",
+    "causes": [
+      "pot_holes",
+      "road_conditions"
+    ],
+    "data_summary": {
+      "median_mins": 11571.066929841665,
+      "median_days": 8.035463145723378,
+      "p95_days": 80.5438223480787,
+      "max_days": 123.27069185817129
+    }
+  },
+  "drainage": {
+    "threshold_u_mins": 21702.6666330675,
+    "threshold_u_days": 15.071296272963542,
+    "N_total": 258,
+    "N_exceedances": 39,
+    "xi": -0.2756319878020698,
+    "sigma": 39017.91683048537,
+    "tail_type": "bounded",
+    "return_30d_mins": 130328.43403263835,
+    "return_30d_days": 90.50585696710996,
+    "return_90d_mins": 138932.3965629857,
+    "return_90d_days": 96.48083094651784,
+    "return_180d_mins": 143163.36831847593,
+    "return_180d_days": 99.41900577671939,
+    "ci_30d_lo_days": 41.77091244953876,
+    "ci_30d_hi_days": 68.23323642079247,
+    "policy_implication": "BOUNDED TAIL (\u03be=-0.276): Worst-case duration is mathematically capped. Standard planning with 91 day buffer is adequate.",
+    "group": "drainage",
+    "causes": [
+      "water_logging"
+    ],
+    "data_summary": {
+      "median_mins": 3584.7006169333335,
+      "median_days": 2.489375428425926,
+      "p95_days": 41.582426390662604,
+      "max_days": 82.05696102600695
+    }
+  },
+  "construction": {
+    "threshold_u_mins": 27808.115332667512,
+    "threshold_u_days": 19.31119120324133,
+    "N_total": 170,
+    "N_exceedances": 26,
+    "xi": 0.031101328345979527,
+    "sigma": 42027.379676402925,
+    "tail_type": "exponential",
+    "return_30d_mins": 268917.8561148405,
+    "return_30d_days": 186.74851119086145,
+    "return_90d_mins": 324268.1907746552,
+    "return_90d_days": 225.18624359351057,
+    "return_180d_mins": 360176.0333142502,
+    "return_180d_days": 250.12224535711817,
+    "ci_30d_lo_days": 56.10849939785271,
+    "ci_30d_hi_days": 142.0631630568303,
+    "policy_implication": "EXPONENTIAL TAIL (\u03be\u22480): Duration is bounded but variable. Plan for 187 days worst-case per monthly event.",
+    "group": "construction",
+    "causes": [
+      "construction"
+    ],
+    "data_summary": {
+      "median_mins": 2937.6707495666665,
+      "median_days": 2.0400491316435185,
+      "p95_days": 48.5074916131024,
+      "max_days": 126.6494472540162
+    }
+  },
+  "vegetation": {
+    "threshold_u_mins": 17294.39388144416,
+    "threshold_u_days": 12.00999575100289,
+    "N_total": 182,
+    "N_exceedances": 28,
+    "xi": 0.3617742653731221,
+    "sigma": 16157.358329159128,
+    "tail_type": "heavy",
+    "return_30d_mins": 273523.3186329037,
+    "return_30d_days": 189.94674905062755,
+    "return_90d_mins": 420365.29964641685,
+    "return_90d_days": 291.9203469766784,
+    "return_180d_mins": 547971.3724070175,
+    "return_180d_days": 380.535675282651,
+    "ci_30d_lo_days": 25.888183801331582,
+    "ci_30d_hi_days": 146.87138654552507,
+    "policy_implication": "HEAVY TAIL (\u03be=0.362): Worst-case duration is unbounded. Plan for at least 190 days of traffic diversion for a single event occurring once per month. Mean-based planning severely underestimates requirements.",
+    "group": "vegetation",
+    "causes": [
+      "tree_fall"
+    ],
+    "data_summary": {
+      "median_mins": 912.3564560583334,
+      "median_days": 0.6335808722627315,
+      "p95_days": 25.96981990670544,
+      "max_days": 136.3293805201273
+    }
+  }
+}

@@ -1,0 +1,233 @@
+{
+  "edges": [
+    {
+      "src": "vehicle_breakdown",
+      "dst": "vehicle_breakdown",
+      "weight": 1126
+    },
+    {
+      "src": "pot_holes",
+      "dst": "pot_holes",
+      "weight": 1021
+    },
+    {
+      "src": "water_logging",
+      "dst": "water_logging",
+      "weight": 329
+    },
+    {
+      "src": "pot_holes",
+      "dst": "vehicle_breakdown",
+      "weight": 103
+    },
+    {
+      "src": "others",
+      "dst": "vehicle_breakdown",
+      "weight": 93
+    },
+    {
+      "src": "vehicle_breakdown",
+      "dst": "water_logging",
+      "weight": 80
+    },
+    {
+      "src": "vehicle_breakdown",
+      "dst": "others",
+      "weight": 79
+    },
+    {
+      "src": "water_logging",
+      "dst": "tree_fall",
+      "weight": 73
+    },
+    {
+      "src": "tree_fall",
+      "dst": "water_logging",
+      "weight": 51
+    },
+    {
+      "src": "construction",
+      "dst": "vehicle_breakdown",
+      "weight": 48
+    },
+    {
+      "src": "vehicle_breakdown",
+      "dst": "construction",
+      "weight": 47
+    },
+    {
+      "src": "tree_fall",
+      "dst": "tree_fall",
+      "weight": 46
+    },
+    {
+      "src": "water_logging",
+      "dst": "pot_holes",
+      "weight": 44
+    },
+    {
+      "src": "accident",
+      "dst": "vehicle_breakdown",
+      "weight": 42
+    },
+    {
+      "src": "water_logging",
+      "dst": "vehicle_breakdown",
+      "weight": 42
+    },
+    {
+      "src": "vehicle_breakdown",
+      "dst": "accident",
+      "weight": 37
+    },
+    {
+      "src": "others",
+      "dst": "others",
+      "weight": 34
+    },
+    {
+      "src": "vehicle_breakdown",
+      "dst": "pot_holes",
+      "weight": 33
+    },
+    {
+      "src": "accident",
+      "dst": "accident",
+      "weight": 29
+    },
+    {
+      "src": "tree_fall",
+      "dst": "vehicle_breakdown",
+      "weight": 25
+    },
+    {
+      "src": "road_conditions",
+      "dst": "road_conditions",
+      "weight": 25
+    },
+    {
+      "src": "construction",
+      "dst": "construction",
+      "weight": 24
+    },
+    {
+      "src": "congestion",
+      "dst": "vehicle_breakdown",
+      "weight": 23
+    },
+    {
+      "src": "public_event",
+      "dst": "public_event",
+      "weight": 21
+    }
+  ],
+  "centrality": {
+    "vehicle_breakdown": {
+      "betweenness": 0.4583,
+      "in_strength": 1502,
+      "out_strength": 1402
+    },
+    "pot_holes": {
+      "betweenness": 0.0,
+      "in_strength": 1098,
+      "out_strength": 1124
+    },
+    "water_logging": {
+      "betweenness": 0.0833,
+      "in_strength": 460,
+      "out_strength": 488
+    },
+    "construction": {
+      "betweenness": 0.0,
+      "in_strength": 71,
+      "out_strength": 72
+    },
+    "accident": {
+      "betweenness": 0.0,
+      "in_strength": 66,
+      "out_strength": 71
+    },
+    "others": {
+      "betweenness": 0.0,
+      "in_strength": 113,
+      "out_strength": 127
+    },
+    "tree_fall": {
+      "betweenness": 0.0,
+      "in_strength": 119,
+      "out_strength": 122
+    },
+    "congestion": {
+      "betweenness": 0.0,
+      "in_strength": 0,
+      "out_strength": 23
+    },
+    "road_conditions": {
+      "betweenness": 0.0,
+      "in_strength": 25,
+      "out_strength": 25
+    },
+    "public_event": {
+      "betweenness": 0.0,
+      "in_strength": 21,
+      "out_strength": 21
+    }
+  },
+  "granger_pairs": [
+    {
+      "corridor": "Bannerghata Road",
+      "lag": 2,
+      "src": "pothole",
+      "tgt": "breakdown",
+      "corr_src_tgt": 0.395,
+      "corr_auto_tgt": 0.011
+    },
+    {
+      "corridor": "Bellary Road 2",
+      "lag": 1,
+      "src": "pothole",
+      "tgt": "accident",
+      "corr_src_tgt": 0.338,
+      "corr_auto_tgt": 0.119
+    },
+    {
+      "corridor": "ORR West 1",
+      "lag": 2,
+      "src": "pothole",
+      "tgt": "accident",
+      "corr_src_tgt": 0.436,
+      "corr_auto_tgt": 0.012
+    },
+    {
+      "corridor": "Old Madras Road",
+      "lag": 2,
+      "src": "pothole",
+      "tgt": "accident",
+      "corr_src_tgt": 0.366,
+      "corr_auto_tgt": 0.067
+    },
+    {
+      "corridor": "Airport New South Road",
+      "lag": 2,
+      "src": "pothole",
+      "tgt": "accident",
+      "corr_src_tgt": 1.0,
+      "corr_auto_tgt": 0.024
+    },
+    {
+      "corridor": "Airport New South Road",
+      "lag": 1,
+      "src": "construction",
+      "tgt": "breakdown",
+      "corr_src_tgt": 0.337,
+      "corr_auto_tgt": 0.051
+    }
+  ],
+  "causal_chains": {
+    "primary": "pot_holes \u2192 vehicle_breakdown (w=21)",
+    "secondary": "water_logging \u2192 vehicle_breakdown (w=23)",
+    "tertiary": "accident \u2192 vehicle_breakdown (w=24)",
+    "infrastructure": "construction \u2192 vehicle_breakdown (w=33)",
+    "self_excitation": "vehicle_breakdown \u2192 vehicle_breakdown (w=817)"
+  }
+}

@@ -1,0 +1,206 @@
+[
+  {
+    "event_type": "construction",
+    "venue": "Palace Grounds",
+    "crowd_size": 0,
+    "start_hour": 8,
+    "end_hour": 18,
+    "affected_corridors": [
+      "Bellary Road 1",
+      "Tumkur Road"
+    ],
+    "pre_event_window": "08:00 \u2013 08:00",
+    "peak_window": "08:00 \u2013 18:00",
+    "post_event_window": "18:00 \u2013 18:00",
+    "surge_multiplier": 1.1,
+    "expected_extra_events_per_corridor": 0.4,
+    "peak_congestion_intensity": "LOW",
+    "officers_required": 8,
+    "barricades_required": 22,
+    "diversion_routes": [
+      "Use nearest parallel/arterial corridors",
+      "VMS signs route advisory"
+    ],
+    "road_closure_zones": [],
+    "hawkes_alert": null,
+    "cascade_risk": "LOW",
+    "policy_notes": [
+      "Long-term planned infrastructure work (dominant planned event type). Causes significant lane reduction, bottleneck behavior, and elevated background rates.",
+      "ResourceRAG pre-loaded with construction diversion templates. Dispatch Assistant will surface these automatically."
+    ],
+    "vms_message": "*** ALL CLEAR ***\nMAJOR EVENT: CONSTRUCTION\nExpect heavy traffic on:\nBellary Road 1\nDIVERT VIA: Use nearest parallel/arterial corridors\nPeak: 08:00 \u2013 18:00"
+  },
+  {
+    "event_type": "cricket_match",
+    "venue": "Chinnaswamy Stadium",
+    "crowd_size": 50000,
+    "start_hour": 14,
+    "end_hour": 20,
+    "affected_corridors": [
+      "Bellary Road 1",
+      "Old Madras Road"
+    ],
+    "pre_event_window": "12:00 \u2013 14:00",
+    "peak_window": "14:00 \u2013 20:00",
+    "post_event_window": "20:00 \u2013 21:30",
+    "surge_multiplier": 4.81,
+    "expected_extra_events_per_corridor": 6.6,
+    "peak_congestion_intensity": "CRITICAL",
+    "officers_required": 48,
+    "barricades_required": 28,
+    "diversion_routes": [
+      "Via Richmond Road",
+      "Via Hosur Road flyover"
+    ],
+    "road_closure_zones": [
+      "Bellary Road 1 \u2014 entry restriction within 3 km",
+      "Old Madras Road \u2014 entry restriction within 3 km"
+    ],
+    "hawkes_alert": "Branching ratio under event conditions \u2248 0.58 \u2192 NEAR-UNSTABLE. Pre-position resources 2h before start.",
+    "cascade_risk": "CRITICAL",
+    "policy_notes": [
+      "High-attendance, predictable start/end times. Heavy egress surge.",
+      "ATLAS pre-excites Hawkes model for ['Bellary Road 1', 'Old Madras Road']: background rate \u03bc multiplied by {total_surge:.1f}\u00d7 starting 2h before event.",
+      "TE contagion network activated: downstream corridors should expect spill-over 15\u201330 min after primary surge.",
+      "ResourceRAG pre-loaded with cricket_match diversion templates. Dispatch Assistant will surface these automatically."
+    ],
+    "vms_message": "*** CODE RED ***\nMAJOR EVENT: CRICKET MATCH\nExpect heavy traffic on:\nBellary Road 1\nDIVERT VIA: Via Richmond Road\nPeak: 14:00 \u2013 20:00"
+  },
+  {
+    "event_type": "political_rally",
+    "venue": "Freedom Park",
+    "crowd_size": 25000,
+    "start_hour": 16,
+    "end_hour": 20,
+    "affected_corridors": [
+      "West of Chord Road",
+      "Magadi Road"
+    ],
+    "pre_event_window": "13:00 \u2013 16:00",
+    "peak_window": "16:00 \u2013 20:00",
+    "post_event_window": "20:00 \u2013 22:00",
+    "surge_multiplier": 4.6,
+    "expected_extra_events_per_corridor": 2.1,
+    "peak_congestion_intensity": "CRITICAL",
+    "officers_required": 55,
+    "barricades_required": 40,
+    "diversion_routes": [
+      "Via ORR North 1",
+      "Via Tumkur Road bypass"
+    ],
+    "road_closure_zones": [
+      "West of Chord Road \u2014 entry restriction within 4 km",
+      "Magadi Road \u2014 entry restriction within 4 km"
+    ],
+    "hawkes_alert": "Moderate cascade risk (n\u00b7surge \u2248 0.23).",
+    "cascade_risk": "MEDIUM",
+    "policy_notes": [
+      "High VIP security load. Procession routes amplify corridor contagion.",
+      "ATLAS pre-excites Hawkes model for ['West of Chord Road', 'Magadi Road']: background rate \u03bc multiplied by {total_surge:.1f}\u00d7 starting 3h before event.",
+      "ResourceRAG pre-loaded with political_rally diversion templates. Dispatch Assistant will surface these automatically."
+    ],
+    "vms_message": "*** CODE RED ***\nMAJOR EVENT: POLITICAL RALLY\nExpect heavy traffic on:\nWest of Chord Road\nDIVERT VIA: Via ORR North 1\nPeak: 16:00 \u2013 20:00"
+  },
+  {
+    "event_type": "festival_religious",
+    "venue": "Lalbagh Botanical Garden",
+    "crowd_size": 75000,
+    "start_hour": 8,
+    "end_hour": 22,
+    "affected_corridors": [
+      "Hosur Road",
+      "Bannerghatta Road"
+    ],
+    "pre_event_window": "05:00 \u2013 08:00",
+    "peak_window": "08:00 \u2013 22:00",
+    "post_event_window": "22:00 \u2013 00:00",
+    "surge_multiplier": 5.91,
+    "expected_extra_events_per_corridor": 9.6,
+    "peak_congestion_intensity": "CRITICAL",
+    "officers_required": 72,
+    "barricades_required": 49,
+    "diversion_routes": [
+      "Via Outer Ring Road",
+      "Via alternate arterial"
+    ],
+    "road_closure_zones": [
+      "Hosur Road \u2014 entry restriction within 5 km",
+      "Bannerghatta Road \u2014 entry restriction within 5 km"
+    ],
+    "hawkes_alert": "Effective excitation \u2248 0.30. Event will trigger secondary breakdown cascade. Deploy 30min early.",
+    "cascade_risk": "HIGH",
+    "policy_notes": [
+      "Multi-day footprint. Unpredictable crowd flow. High spillover risk.",
+      "ATLAS pre-excites Hawkes model for ['Hosur Road', 'Bannerghatta Road']: background rate \u03bc multiplied by {total_surge:.1f}\u00d7 starting 3h before event.",
+      "TE contagion network activated: downstream corridors should expect spill-over 15\u201330 min after primary surge.",
+      "ResourceRAG pre-loaded with festival_religious diversion templates. Dispatch Assistant will surface these automatically."
+    ],
+    "vms_message": "*** CODE RED ***\nMAJOR EVENT: FESTIVAL RELIGIOUS\nExpect heavy traffic on:\nHosur Road\nDIVERT VIA: Via Outer Ring Road\nPeak: 08:00 \u2013 22:00"
+  },
+  {
+    "event_type": "concert_music",
+    "venue": "Palace Grounds",
+    "crowd_size": 15000,
+    "start_hour": 18,
+    "end_hour": 23,
+    "affected_corridors": [
+      "Bellary Road 1",
+      "Tumkur Road"
+    ],
+    "pre_event_window": "16:30 \u2013 18:00",
+    "peak_window": "18:00 \u2013 23:00",
+    "post_event_window": "23:00 \u2013 00:00",
+    "surge_multiplier": 3.13,
+    "expected_extra_events_per_corridor": 4.0,
+    "peak_congestion_intensity": "HIGH",
+    "officers_required": 15,
+    "barricades_required": 9,
+    "diversion_routes": [
+      "Via MG Road",
+      "Via residency road"
+    ],
+    "road_closure_zones": [],
+    "hawkes_alert": "Effective excitation \u2248 0.38. Event will trigger secondary breakdown cascade. Deploy 30min early.",
+    "cascade_risk": "HIGH",
+    "policy_notes": [
+      "Late-night events cause post-event peak. Night Hawkes excitation elevated.",
+      "ATLAS pre-excites Hawkes model for ['Bellary Road 1', 'Tumkur Road']: background rate \u03bc multiplied by {total_surge:.1f}\u00d7 starting 2h before event.",
+      "TE contagion network activated: downstream corridors should expect spill-over 15\u201330 min after primary surge.",
+      "ResourceRAG pre-loaded with concert_music diversion templates. Dispatch Assistant will surface these automatically."
+    ],
+    "vms_message": "*** CODE AMBER ***\nMAJOR EVENT: CONCERT MUSIC\nExpect heavy traffic on:\nBellary Road 1\nDIVERT VIA: Via MG Road\nPeak: 18:00 \u2013 23:00"
+  },
+  {
+    "event_type": "vip_movement",
+    "venue": "Vidhana Soudha",
+    "crowd_size": 500,
+    "start_hour": 10,
+    "end_hour": 12,
+    "affected_corridors": [
+      "West of Chord Road",
+      "Bellary Road 1"
+    ],
+    "pre_event_window": "09:30 \u2013 10:00",
+    "peak_window": "10:00 \u2013 12:00",
+    "post_event_window": "12:00 \u2013 12:30",
+    "surge_multiplier": 1.69,
+    "expected_extra_events_per_corridor": 0.4,
+    "peak_congestion_intensity": "LOW",
+    "officers_required": 25,
+    "barricades_required": 10,
+    "diversion_routes": [
+      "All parallel routes \u2014 coordinate with protocol"
+    ],
+    "road_closure_zones": [
+      "West of Chord Road \u2014 entry restriction within 6 km",
+      "Bellary Road 1 \u2014 entry restriction within 6 km"
+    ],
+    "hawkes_alert": "Moderate cascade risk (n\u00b7surge \u2248 0.20).",
+    "cascade_risk": "MEDIUM",
+    "policy_notes": [
+      "Short but intense. Entire corridors blocked. Transfer entropy maximised.",
+      "ResourceRAG pre-loaded with vip_movement diversion templates. Dispatch Assistant will surface these automatically."
+    ],
+    "vms_message": "*** ALL CLEAR ***\nMAJOR EVENT: VIP MOVEMENT\nExpect heavy traffic on:\nWest of Chord Road\nDIVERT VIA: All parallel routes \u2014 coordinate with protoco\nPeak: 10:00 \u2013 12:00"
+  }
+]
