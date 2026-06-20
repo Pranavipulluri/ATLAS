@@ -175,7 +175,7 @@ Also computes diversion routes mapped to venue/crowd thresholds and generates fo
 ## 📄 Prior Research
 
 The DAE tactical layer builds on our own ongoing research:
-*"Decentralized Agentic Edge Traffic Management System for Predictive Emergency Preemption"* (VNRVJIET, 2024 — currently under peer review)
+*"Decentralized Agentic Edge Traffic Management System for Predictive Emergency Preemption"* (currently under peer review - attached in repo)
 
 Results below were benchmarked on physical Jetson Nano hardware as part of this research:
 *   **42ms** latency (tactical signal-control loop)
