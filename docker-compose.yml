@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  atlas:
+    build:
+      context: .
+      dockerfile: Dockerfile.atlas
+    ports:
+      - "8501:8501"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+
+  dae-backend:
+    build:
+      context: ./dae/traffic_agent
+      dockerfile: Dockerfile.dae
+    ports:
+      - "8000:8000"
+    environment:
+      - TRAFFIC_MODE=simulation
+      - DETECTION_MODE=mock
+      - NODE_ID=A
+      - CORS_ORIGIN=*
+    restart: always
+
+  dae-frontend:
+    build:
+      context: ./dae/public
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # Next.js environment variables prefixed with NEXT_PUBLIC_ are embedded into the client-side
+      # JavaScript bundle. For local browser-to-backend communication, use localhost:8000.
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - dae-backend
+    restart: always

@@ -2794,6 +2794,10 @@ elif page == "🧪 Stress Test":
 # SCREEN 11 — DAE INTEGRATION BRIDGE
 # ════════════════════════════════════════════════════════════════════════════════
 elif page == "🔌 DAE Integration":
+    import os
+    DAE_API = os.environ.get("DAE_API_URL", "http://localhost:8000")
+    DAE_FRONTEND = os.environ.get("DAE_FRONTEND_URL", "http://localhost:3000")
+
     import json as _json
     import urllib.request
     from datetime import datetime as _dt
@@ -2996,7 +3000,7 @@ elif page == "🔌 DAE Integration":
     with col_c1:
         _dae_live_card = None
         try:
-            with urllib.request.urlopen('http://localhost:8000/api/state', timeout=1) as _r:
+            with urllib.request.urlopen(f'{DAE_API}/api/state', timeout=1) as _r:
                 _ds = _json.loads(_r.read())
                 _intersections = _ds.get('intersections', {})
                 if _intersections:
@@ -3084,7 +3088,7 @@ elif page == "🔌 DAE Integration":
     _dae_online = False
     _dae_health = None
     try:
-        with urllib.request.urlopen('http://localhost:8000/health', timeout=2) as _r:
+        with urllib.request.urlopen(f'{DAE_API}/health', timeout=2) as _r:
             _dae_health = _json.loads(_r.read())
             _dae_online = True
     except Exception:
@@ -3101,7 +3105,7 @@ elif page == "🔌 DAE Integration":
                 Nodes: {_nodes_str}<br>
                 Ambulances: {_dae_health.get('active_ambulances', 0)}<br>
                 Tick: #{_dae_health.get('tick', 0)}<br>
-                Frontend: <a href='http://localhost:3000' target='_blank' style='color:{tc['accent']};'>localhost:3000</a>
+                Frontend: <a href='{DAE_FRONTEND}' target='_blank' style='color:{tc['accent']};'>{DAE_FRONTEND.replace('https://','').replace('http://','')}</a>
               </p>
             </div>""", unsafe_allow_html=True)
         else:
@@ -3117,7 +3121,7 @@ elif page == "🔌 DAE Integration":
     with dae_col2:
         if _dae_online:
             try:
-                with urllib.request.urlopen('http://localhost:8000/api/state', timeout=2) as _r:
+                with urllib.request.urlopen(f'{DAE_API}/api/state', timeout=2) as _r:
                     _full_state = _json.loads(_r.read())
                 _inters = _full_state.get('intersections', {})
                 _rows_dae = []
