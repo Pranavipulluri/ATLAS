@@ -452,14 +452,16 @@ export default function Scene3D({ gridState, selectedNode, onSelectNode }: Scene
                   <bufferGeometry>
                     <bufferAttribute
                       attach="attributes-position"
+                      args={[
+                        new Float32Array(
+                          em.route.flatMap(r => {
+                            const p = NODE_POSITIONS[r.intersection];
+                            return p ? [p[0], 0.15, p[1]] : [0, 0.15, 0];
+                          })
+                        ),
+                        3
+                      ]}
                       count={em.route.length}
-                      array={new Float32Array(
-                        em.route.flatMap(r => {
-                          const p = NODE_POSITIONS[r.intersection];
-                          return p ? [p[0], 0.15, p[1]] : [0, 0.15, 0];
-                        })
-                      )}
-                      itemSize={3}
                     />
                   </bufferGeometry>
                   <lineBasicMaterial color="#ff4444" linewidth={2} transparent opacity={0.5} />
