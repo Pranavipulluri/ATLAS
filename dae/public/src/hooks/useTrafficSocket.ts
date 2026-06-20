@@ -106,7 +106,7 @@ export interface GridState {
   flood_active?: string | null;
 }
 
-export function useTrafficSocket(url: string = "ws://localhost:8000/ws") {
+export function useTrafficSocket(url?: string) {
   const [gridState, setGridState] = useState<GridState | null>(null);
   const [connected, setConnected] = useState(false);
   const [logs, setLogs] = useState<XAILog[]>([]);
@@ -116,9 +116,22 @@ export function useTrafficSocket(url: string = "ws://localhost:8000/ws") {
 
   const prevAiStateRef = useRef<Record<string, { master: string; lanes: Record<string, string> }>>({});
 
+  // Resolve default socket URL dynamically from env var or window location
+  let resolvedUrl = url;
+  if (!resolvedUrl) {
+    resolvedUrl = "ws://localhost:8000/ws";
+    if (typeof window !== "undefined") {
+      const envApiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (envApiUrl) {
+        const baseUrl = envApiUrl.replace(/\/$/, "");
+        resolvedUrl = baseUrl.replace(/^http/, "ws") + "/ws";
+      }
+    }
+  }
+
   const connect = useCallback(() => {
     try {
-      const ws = new WebSocket(url);
+      const ws = new WebSocket(resolvedUrl);
 
       ws.onopen = () => {
         setConnected(true);
@@ -191,7 +204,7 @@ export function useTrafficSocket(url: string = "ws://localhost:8000/ws") {
     } catch {
       reconnectRef.current = setTimeout(connect, 2000);
     }
-  }, [url]);
+  }, [resolvedUrl]);
 
   useEffect(() => {
     connect();
