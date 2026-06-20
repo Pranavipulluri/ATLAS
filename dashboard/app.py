@@ -207,6 +207,33 @@ section[data-testid="stSidebar"] hr {{
     border-color: var(--border-sidebar) !important;
 }}
 
+/* Premium Sidebar Radio Navigation Tabs styling */
+div[data-testid="stSidebar"] div[data-testid="stRadio"] label > div:first-of-type {{
+    display: none !important; /* Hide default radio circle bullets */
+}}
+div[data-testid="stSidebar"] div[data-testid="stRadio"] label {{
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+    margin-bottom: 2px !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    border: 1px solid transparent !important;
+    display: flex !important;
+    align-items: center !important;
+}}
+div[data-testid="stSidebar"] div[data-testid="stRadio"] label:has(input[type="radio"]:checked) {{
+    background-color: var(--card-bg-start) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--accent) !important;
+    font-weight: 600 !important;
+}}
+div[data-testid="stSidebar"] div[data-testid="stRadio"] label:hover {{
+    background-color: var(--card-bg-end) !important;
+}}
+div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] {{
+    gap: 4px !important;
+}}
+
 /* Metric cards */
 .metric-card {{
     background: linear-gradient(135deg, var(--card-bg-start) 0%, var(--card-bg-end) 100%);
@@ -431,6 +458,19 @@ header[data-testid="stHeader"] > div {{
     background-color: var(--bg-sidebar) !important;
     border-bottom: 1px solid var(--border-sidebar) !important;
     color: var(--text-main) !important;
+}}
+header[data-testid="stHeader"] svg,
+header[data-testid="stHeader"] button,
+header[data-testid="stHeader"] a,
+header[data-testid="stHeader"] p,
+header[data-testid="stHeader"] span {{
+    color: var(--text-main) !important;
+    fill: var(--text-main) !important;
+}}
+header[data-testid="stHeader"] button:hover,
+header[data-testid="stHeader"] a:hover {{
+    color: var(--accent) !important;
+    fill: var(--accent) !important;
 }}
 
 /* Bottom container holding chat input */
@@ -816,7 +856,7 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 
 # Theme Selector dropdown
-st.sidebar.markdown("<div style='margin-bottom:-15px; font-weight:600; font-size:0.82rem; color: var(--text-sidebar-muted);'>Appearance Mode</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div style='margin-bottom:-4px; font-weight:600; font-size:0.82rem; color: var(--text-sidebar-muted);'>Appearance Mode</div>", unsafe_allow_html=True)
 theme_select = st.sidebar.selectbox(
     "Appearance Mode",
     ["🌙 Dark / Night Mode", "🍦 Warm Cream Light"],
@@ -829,7 +869,7 @@ if new_theme != st.session_state.theme:
     st.session_state.theme = new_theme
     st.rerun()
 
-st.sidebar.markdown("<div style='margin-bottom:-15px; font-weight:600; font-size:0.82rem; color: var(--text-sidebar-muted); margin-top:10px;'>Navigation</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div style='margin-bottom:-4px; font-weight:600; font-size:0.82rem; color: var(--text-sidebar-muted); margin-top:10px;'>Navigation</div>", unsafe_allow_html=True)
 
 if "active_page" not in st.session_state:
     st.session_state.active_page = "🏠 Command Center"
