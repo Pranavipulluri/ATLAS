@@ -1,4 +1,4 @@
-﻿"""
+"""
 ATLAS Dashboard — Streamlit Application
 5-screen interactive dashboard for PS2: Event-Driven Congestion Management
 """
@@ -28,75 +28,592 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ─── Custom CSS ─────────────────────────────────────────────────────────────
-st.markdown("""
+# ─── Custom CSS & Theme System ──────────────────────────────────────────────
+if "theme" not in st.session_state:
+    st.session_state.theme = "dark"
+
+def get_theme_colors():
+    theme = st.session_state.get("theme", "dark")
+    if theme == "light":
+        return {
+            "bg_app": "#faf6ee",
+            "bg_sidebar": "#f3ece0",
+            "border_sidebar": "#eedfcc",
+            "text_main": "#2b2620",
+            "text_sidebar_muted": "#7a7263",
+            "card_bg_start": "#fdfbfa",
+            "card_bg_end": "#f7f3eb",
+            "card_border": "#e6dec9",
+            "accent": "#0f766e",
+            
+            # Earthier risk colors for light cream mode
+            "red": "#c2410c",       # high-risk terracotta
+            "yellow": "#b45309",    # medium-risk ochre
+            "green": "#2d6a4f",     # low-risk sage
+            "purple": "#7c5295",    # secondary accent deep purple
+            "orange": "#b45309",    # medium-risk ochre
+            "grey": "#7a7263",      # muted text
+            "pink": "#be185d",
+            "violet": "#7c5295",
+            
+            "badge_high_bg": "rgba(194,65,12,0.1)",
+            "badge_high_color": "#c2410c",
+            "badge_high_border": "rgba(194,65,12,0.2)",
+            "badge_medium_bg": "rgba(180,83,9,0.1)",
+            "badge_medium_color": "#b45309",
+            "badge_medium_border": "rgba(180,83,9,0.2)",
+            "badge_low_bg": "rgba(15,118,110,0.1)",
+            "badge_low_color": "#0f766e",
+            "badge_low_border": "rgba(15,118,110,0.2)",
+            "badge_ok_bg": "rgba(45,106,79,0.1)",
+            "badge_ok_color": "#2d6a4f",
+            "badge_ok_border": "rgba(45,106,79,0.2)",
+            
+            "shadow": "0 4px 20px rgba(0,0,0,0.05)",
+            "bg_grid": "#d9d2c2",
+            "plotly_bg": "#fffdf8",
+            "plotly_paper": "#faf6ee",
+            "plotly_text": "#2b2620",
+            "map_bg": "#a3a8b7",
+            "alert_bg_start": "#f8f4fc",
+            "alert_bg_end": "#f0e6f8",
+            "alert_border": "rgba(124,82,149,0.2)"
+        }
+    else:
+        return {
+            "bg_app": "#13151a",
+            "bg_sidebar": "#0d0e11",
+            "border_sidebar": "#1f222b",
+            "text_main": "#f3f4f6",
+            "text_sidebar_muted": "#9ca3af",
+            "card_bg_start": "#1c1e24",
+            "card_bg_end": "#22252c",
+            "card_border": "#2e323d",
+            "accent": "#00d4ff",
+            
+            # Bright colors for dark mode
+            "red": "#ff6b6b",
+            "yellow": "#ffd93d",
+            "green": "#10b981",
+            "purple": "#a855f7",
+            "orange": "#f97316",
+            "grey": "#9ca3af",
+            "pink": "#ec4899",
+            "violet": "#8b5cf6",
+            
+            "badge_high_bg": "rgba(255,107,107,0.13)",
+            "badge_high_color": "#ff6b6b",
+            "badge_high_border": "rgba(255,107,107,0.27)",
+            "badge_medium_bg": "rgba(255,217,61,0.13)",
+            "badge_medium_color": "#ffd93d",
+            "badge_medium_border": "rgba(255,217,61,0.27)",
+            "badge_low_bg": "rgba(0,212,255,0.13)",
+            "badge_low_color": "#00d4ff",
+            "badge_low_border": "rgba(0,212,255,0.27)",
+            "badge_ok_bg": "rgba(16,185,129,0.13)",
+            "badge_ok_color": "#10b981",
+            "badge_ok_border": "rgba(16,185,129,0.27)",
+            
+            "shadow": "0 4px 20px rgba(0,0,0,0.3)",
+            "bg_grid": "#2d3150",
+            "plotly_bg": "#1c1e24",
+            "plotly_paper": "#13151a",
+            "plotly_text": "#f3f4f6",
+            "map_bg": "#2d3150",
+            "alert_bg_start": "#1a0a2e",
+            "alert_bg_end": "#1a1d2e",
+            "alert_border": "rgba(124,58,237,0.27)"
+        }
+
+tc = get_theme_colors()
+
+st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-html, body, [class*="css"]  { font-family: 'Inter', sans-serif; }
-.stApp { background: #0a0d1a; }
+:root {{
+    --bg-app: {tc['bg_app']};
+    --bg-sidebar: {tc['bg_sidebar']};
+    --border-sidebar: {tc['border_sidebar']};
+    --text-main: {tc['text_main']};
+    --text-sidebar-muted: {tc['text_sidebar_muted']};
+    --card-bg-start: {tc['card_bg_start']};
+    --card-bg-end: {tc['card_bg_end']};
+    --card-border: {tc['card_border']};
+    --accent: {tc['accent']};
+    --badge-high-bg: {tc['badge_high_bg']};
+    --badge-high-color: {tc['badge_high_color']};
+    --badge-high-border: {tc['badge_high_border']};
+    --badge-medium-bg: {tc['badge_medium_bg']};
+    --badge-medium-color: {tc['badge_medium_color']};
+    --badge-medium-border: {tc['badge_medium_border']};
+    --badge-low-bg: {tc['badge_low_bg']};
+    --badge-low-color: {tc['badge_low_color']};
+    --badge-low-border: {tc['badge_low_border']};
+    --badge-ok-bg: {tc['badge_ok_bg']};
+    --badge-ok-color: {tc['badge_ok_color']};
+    --badge-ok-border: {tc['badge_ok_border']};
+    --shadow: {tc['shadow']};
+    --red: {tc['red']};
+    --yellow: {tc['yellow']};
+    --green: {tc['green']};
+    --purple: {tc['purple']};
+    --orange: {tc['orange']};
+    --grey: {tc['grey']};
+    --alert-bg-start: {tc['alert_bg_start']};
+    --alert-bg-end: {tc['alert_bg_end']};
+    --alert-border: {tc['alert_border']};
+}}
 
-/* Sidebar */
-section[data-testid="stSidebar"] { background: #111827; border-right: 1px solid #1f2937; }
-section[data-testid="stSidebar"] .stMarkdown { color: #9ca3af; }
+.stApp, .metric-card, .section-header, section[data-testid="stSidebar"] .stMarkdown {{
+    font-family: 'Inter', sans-serif;
+}}
+.stApp {{
+    background-color: var(--bg-app);
+    color: var(--text-main);
+}}
+
+/* Special alert cards (like the one in Risk Extremes) */
+.alert-card {{
+    background: linear-gradient(135deg, var(--alert-bg-start), var(--alert-bg-end)) !important;
+    border: 1px solid var(--alert-border) !important;
+    border-left: 4px solid var(--purple) !important;
+    border-radius: 12px !important;
+    padding: 20px 24px !important;
+    margin-bottom: 20px !important;
+}}
+.alert-card h4 {{
+    color: var(--purple) !important;
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+    margin: 0 0 8px 0 !important;
+}}
+.alert-card p {{
+    color: var(--text-main) !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    margin: 0 !important;
+}}
+
+/* Sidebar styling */
+section[data-testid="stSidebar"] {{
+    background-color: var(--bg-sidebar) !important;
+    border-right: 1px solid var(--border-sidebar) !important;
+}}
+section[data-testid="stSidebar"] .stMarkdown {{
+    color: var(--text-sidebar-muted) !important;
+}}
+section[data-testid="stSidebar"] hr {{
+    border-color: var(--border-sidebar) !important;
+}}
 
 /* Metric cards */
-.metric-card {
-    background: linear-gradient(135deg, #1a1d2e 0%, #1f2235 100%);
-    border: 1px solid #2d3150;
-    border-radius: 12px; padding: 16px 20px; margin: 6px 0;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-.metric-card h2 { color: #00d4ff; margin: 0; font-size: 2rem; font-weight: 700; }
-.metric-card p  { color: #9ca3af; margin: 4px 0 0 0; font-size: 0.85rem; }
+.metric-card {{
+    background: linear-gradient(135deg, var(--card-bg-start) 0%, var(--card-bg-end) 100%);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 6px 0;
+    box-shadow: var(--shadow);
+}}
+.metric-card h2 {{
+    color: var(--accent);
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}}
+.metric-card p {{
+    color: var(--text-sidebar-muted);
+    margin: 4px 0 0 0;
+    font-size: 0.85rem;
+}}
 
 /* Alert badges */
-.badge-high   { background:#ff6b6b22; color:#ff6b6b; border:1px solid #ff6b6b44; border-radius:6px; padding:2px 10px; font-weight:600; }
-.badge-medium { background:#ffd93d22; color:#ffd93d; border:1px solid #ffd93d44; border-radius:6px; padding:2px 10px; font-weight:600; }
-.badge-low    { background:#00d4ff22; color:#00d4ff; border:1px solid #00d4ff44; border-radius:6px; padding:2px 10px; font-weight:600; }
-.badge-ok     { background:#10b98122; color:#10b981; border:1px solid #10b98144; border-radius:6px; padding:2px 10px; font-weight:600; }
+.badge-high {{
+    background: var(--badge-high-bg);
+    color: var(--badge-high-color);
+    border: 1px solid var(--badge-high-border);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-weight: 600;
+}}
+.badge-medium {{
+    background: var(--badge-medium-bg);
+    color: var(--badge-medium-color);
+    border: 1px solid var(--badge-medium-border);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-weight: 600;
+}}
+.badge-low {{
+    background: var(--badge-low-bg);
+    color: var(--badge-low-color);
+    border: 1px solid var(--badge-low-border);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-weight: 600;
+}}
+.badge-ok {{
+    background: var(--badge-ok-bg);
+    color: var(--badge-ok-color);
+    border: 1px solid var(--badge-ok-border);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-weight: 600;
+}}
 
 /* Section headers */
-.section-header {
-    background: linear-gradient(90deg, #1a1d2e, transparent);
-    border-left: 3px solid #00d4ff; padding: 8px 16px;
-    margin: 12px 0 8px 0; border-radius: 0 8px 8px 0;
-}
-.section-header h3 { color: #00d4ff; margin: 0; font-size: 1rem; font-weight: 600; }
+.section-header {{
+    background: linear-gradient(90deg, var(--card-bg-start), transparent);
+    border-left: 3px solid var(--accent);
+    padding: 8px 16px;
+    margin: 12px 0 8px 0;
+    border-radius: 0 8px 8px 0;
+}}
+.section-header h3 {{
+    color: var(--accent);
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}}
 
 /* Dark plotly */
-.plotly-graph-div { border-radius: 12px; overflow: hidden; }
+.plotly-graph-div {{
+    border-radius: 12px;
+    overflow: hidden;
+}}
 
 /* Rec card */
-.rec-card {
-    background: linear-gradient(135deg, #1a1d2e, #1f2235);
-    border: 1px solid #2d3150; border-radius: 12px; padding: 20px;
+.rec-card {{
+    background: linear-gradient(135deg, var(--card-bg-start), var(--card-bg-end));
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
     margin: 8px 0;
-}
-.rec-card h4 { color: #00d4ff; margin: 0 0 12px 0; }
+}}
+.rec-card h4 {{
+    color: var(--accent);
+    margin: 0 0 12px 0;
+}}
 
-div[data-testid="stMetricValue"] { color: #00d4ff !important; font-weight: 700 !important; }
-div[data-testid="stMetricLabel"] { color: #9ca3af !important; }
+div[data-testid="stMetricValue"] {{
+    color: var(--accent) !important;
+    font-weight: 700 !important;
+}}
+div[data-testid="stMetricLabel"] {{
+    color: var(--text-sidebar-muted) !important;
+}}
+
+/* Dynamic standard components */
+h1, h2, h3, h4, h5, h6, label, span, p, li {{
+    color: var(--text-main);
+}}
+.stRadio label, .stSelectbox label, .stSlider label {{
+    color: var(--text-main) !important;
+}}
+
+/* Form container styling */
+form[data-testid="stForm"] {{
+    background-color: var(--card-bg-start) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+}}
+
+/* Dropdown selectboxes styling */
+div[data-baseweb="select"] > div {{
+    background-color: var(--card-bg-start) !important;
+    color: var(--text-main) !important;
+    border-color: var(--card-border) !important;
+}}
+div[data-baseweb="select"] span, div[data-baseweb="select"] div {{
+    color: var(--text-main) !important;
+}}
+
+/* Dropdown popover menu styling */
+div[role="listbox"],
+div[data-baseweb="menu"],
+div[data-baseweb="popover"],
+div[data-testid="stVirtualDropdown"] {{
+    background-color: var(--card-bg-start) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--card-border) !important;
+}}
+div[role="listbox"] li,
+div[data-baseweb="menu"] li,
+div[data-baseweb="menu"] div,
+div[data-testid="stVirtualDropdown"] li {{
+    color: var(--text-main) !important;
+    background-color: transparent !important;
+}}
+div[role="listbox"] li:hover,
+div[data-baseweb="menu"] li:hover,
+div[data-testid="stVirtualDropdown"] li:hover {{
+    background-color: var(--card-bg-end) !important;
+    color: var(--accent) !important;
+}}
+
+/* Button styling */
+button,
+button[class*="stBaseButton"],
+.stButton > button,
+button[data-testid^="stBaseButton"],
+button[data-testid="stFormSubmitButton"] {{
+    background-color: var(--card-bg-start) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 8px !important;
+}}
+button p,
+button span,
+button div,
+button[class*="stBaseButton"] p,
+button[class*="stBaseButton"] span,
+button[data-testid="stFormSubmitButton"] p,
+button[data-testid="stFormSubmitButton"] span {{
+    color: var(--text-main) !important;
+}}
+button:hover,
+button[class*="stBaseButton"]:hover,
+button[data-testid="stFormSubmitButton"]:hover {{
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+    background-color: var(--card-bg-end) !important;
+}}
+button:hover p,
+button:hover span,
+button:hover div,
+button[class*="stBaseButton"]:hover p,
+button[class*="stBaseButton"]:hover span,
+button[data-testid="stFormSubmitButton"]:hover p,
+button[data-testid="stFormSubmitButton"]:hover span {{
+    color: var(--accent) !important;
+}}
+
+/* Input boxes & Chat input styling */
+div[data-baseweb="input"] input,
+div[data-baseweb="textarea"] textarea,
+.stTextInput input,
+.stNumberInput input,
+div[data-baseweb="input"] {{
+    background-color: var(--card-bg-start) !important;
+    color: var(--text-main) !important;
+    border-color: var(--card-border) !important;
+}}
+
+/* SVG icons styling for theme consistency */
+div[data-baseweb="select"] svg,
+button svg,
+div[data-testid="stSelectbox"] svg,
+div[data-testid="stVirtualDropdown"] svg,
+svg[class^="st-emotion-cache"] {{
+    fill: var(--text-main) !important;
+    color: var(--text-main) !important;
+}}
+
+/* Checkbox & Toggle styling */
+div[data-testid="stCheckbox"] label span,
+div[data-testid="stToggle"] label span {{
+    color: var(--text-main) !important;
+}}
+div[data-testid="stCheckbox"] input[type="checkbox"]:checked + div,
+div[data-testid="stToggle"] input[type="checkbox"]:checked + div {{
+    background-color: var(--accent) !important;
+}}
+div[data-testid="stCheckbox"] input[type="checkbox"] + div,
+div[data-testid="stToggle"] input[type="checkbox"] + div {{
+    border-color: var(--card-border) !important;
+}}
+
+/* Top Header styling */
+header[data-testid="stHeader"],
+header[data-testid="stHeader"] > div {{
+    background-color: var(--bg-sidebar) !important;
+    border-bottom: 1px solid var(--border-sidebar) !important;
+    color: var(--text-main) !important;
+}}
+
+/* Bottom container holding chat input */
+div[data-testid="stBottom"],
+div[data-testid="stBottom"] > div {{
+    background-color: transparent !important;
+}}
+
+/* Chat Input Container */
+div[data-testid="stChatInput"] {{
+    background-color: transparent !important;
+    border-top: none !important;
+}}
+div[data-testid="stChatInput"] div,
+div[data-testid="stChatInput"] form {{
+    background-color: var(--card-bg-start) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-main) !important;
+}}
+div[data-testid="stChatInput"] textarea {{
+    background-color: transparent !important;
+    color: var(--text-main) !important;
+}}
+div[data-testid="stChatInput"] button {{
+    background-color: transparent !important;
+    color: var(--accent) !important;
+}}
+div[data-testid="stChatInput"] button:hover {{
+    background-color: var(--card-bg-end) !important;
+    color: var(--accent) !important;
+}}
+
+/* Expander Header styling */
+div[data-testid="stExpander"] {{
+    border: 1px solid var(--card-border) !important;
+    border-radius: 8px !important;
+    background-color: var(--card-bg-start) !important;
+}}
+div[data-testid="stExpander"] details,
+div[data-testid="stExpander"] summary {{
+    background-color: var(--card-bg-start) !important;
+    color: var(--text-main) !important;
+}}
+div[data-testid="stExpander"] summary:hover {{
+    color: var(--accent) !important;
+}}
+div[data-testid="stExpander"] summary svg {{
+    fill: var(--text-main) !important;
+    color: var(--text-main) !important;
+}}
+
+/* Chat message avatar styling */
+div[data-testid="stChatMessageAvatar"] {{
+    background-color: var(--card-bg-start) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-main) !important;
+}}
+
+/* Custom Table styling for dynamic pandas HTML tables */
+table {{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 0.9rem;
+    color: var(--text-main) !important;
+}}
+table th {{
+    background-color: var(--card-bg-end) !important;
+    color: var(--text-main) !important;
+    font-weight: 600;
+    border-bottom: 2px solid var(--card-border) !important;
+    padding: 8px 12px;
+    text-align: left;
+}}
+table td {{
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--card-border) !important;
+    color: var(--text-main) !important;
+}}
+table tr:hover {{
+    background-color: var(--card-bg-start) !important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
-DARK_LAYOUT = dict(
-    plot_bgcolor='#1a1d2e',
-    paper_bgcolor='#0f1117',
-    font=dict(family='Inter', color='white'),
-    margin=dict(l=40, r=20, t=40, b=40),
-)
-DARK_AXIS = dict(gridcolor='#2d3150', zeroline=False)   # apply per-chart as needed
+# Helper function to plot figures without displayModeBar
+def plot(fig, **kw):
+    tc_local = get_theme_colors()
+    fig.update_layout(
+        plot_bgcolor=tc_local["plotly_bg"],
+        paper_bgcolor=tc_local["plotly_paper"],
+        font=dict(family='Inter', color=tc_local["plotly_text"]),
+        title_font=dict(color=tc_local["plotly_text"], family='Inter'),
+        legend_font=dict(color=tc_local["plotly_text"], family='Inter'),
+        legend_title_font=dict(color=tc_local["plotly_text"], family='Inter'),
+    )
+    fig.update_xaxes(
+        gridcolor=tc_local["bg_grid"],
+        color=tc_local["plotly_text"],
+        tickfont=dict(color=tc_local["plotly_text"], family='Inter'),
+        title_font=dict(color=tc_local["plotly_text"], family='Inter'),
+        zeroline=False,
+        automargin=True
+    )
+    fig.update_yaxes(
+        gridcolor=tc_local["bg_grid"],
+        color=tc_local["plotly_text"],
+        tickfont=dict(color=tc_local["plotly_text"], family='Inter'),
+        title_font=dict(color=tc_local["plotly_text"], family='Inter'),
+        zeroline=False,
+        automargin=True
+    )
+    if any(trace.type in ('scatterpolar', 'barpolar') for trace in fig.data):
+        fig.update_polars(
+            radialaxis_gridcolor=tc_local["bg_grid"],
+            radialaxis_linecolor=tc_local["bg_grid"],
+            radialaxis_tickfont=dict(color=tc_local["plotly_text"], family='Inter'),
+            angularaxis_gridcolor=tc_local["bg_grid"],
+            angularaxis_linecolor=tc_local["bg_grid"],
+            angularaxis_tickfont=dict(color=tc_local["plotly_text"], family='Inter'),
+            bgcolor=tc_local["plotly_bg"]
+        )
+    fig.update_annotations(
+        font=dict(color=tc_local["plotly_text"], family='Inter')
+    )
+    st.plotly_chart(fig, theme=None, use_container_width=True, config={'displayModeBar': False}, **kw)
 
-# Colormap for translucent area fills
-RGBA_FILL = {
-    '#ff6b6b': 'rgba(255,107,107,0.15)',
-    '#00d4ff': 'rgba(0,212,255,0.15)',
-    '#ffd93d': 'rgba(255,217,61,0.15)',
-    '#a855f7': 'rgba(168,85,247,0.15)',
-    '#10b981': 'rgba(16,185,129,0.15)',
-    '#9ca3af': 'rgba(156,163,175,0.15)',
-}
+def get_theme_layout():
+    tc_local = get_theme_colors()
+    return {
+        "plot_bgcolor": tc_local["plotly_bg"],
+        "paper_bgcolor": tc_local["plotly_paper"],
+        "font": dict(family='Inter', color=tc_local["plotly_text"]),
+        "margin": dict(l=40, r=20, t=40, b=40),
+    }
+
+def get_theme_axis():
+    tc_local = get_theme_colors()
+    return dict(
+        gridcolor=tc_local["bg_grid"],
+        zeroline=False,
+        color=tc_local["plotly_text"],
+        tickfont=dict(color=tc_local["plotly_text"], family='Inter'),
+        title_font=dict(color=tc_local["plotly_text"], family='Inter'),
+    )
+
+def get_rgba_fill():
+    tc_local = get_theme_colors()
+    return {
+        tc_local['red']: 'rgba(255,107,107,0.15)',
+        tc_local['accent']: 'rgba(0,212,255,0.15)',
+        tc_local['yellow']: 'rgba(255,217,61,0.15)',
+        tc_local['purple']: 'rgba(168,85,247,0.15)',
+        tc_local['green']: 'rgba(16,185,129,0.15)',
+        tc_local['grey']: 'rgba(156,163,175,0.15)',
+        tc_local['orange']: 'rgba(249,115,22,0.15)',
+        tc_local['pink']: 'rgba(236,72,153,0.15)',
+        tc_local['violet']: 'rgba(139,92,246,0.15)',
+        # Light mode fallbacks / colors
+        '#c2410c': 'rgba(194,65,12,0.15)',
+        '#b45309': 'rgba(180,83,9,0.15)',
+        '#2d6a4f': 'rgba(45,106,79,0.15)',
+        '#0f766e': 'rgba(15,118,110,0.15)',
+        '#7c5295': 'rgba(124,82,149,0.15)',
+        '#7a7263': 'rgba(122,114,99,0.15)',
+        '#be185d': 'rgba(190,24,93,0.15)',
+    }
+
+def get_cause_colors():
+    tc_local = get_theme_colors()
+    return {
+        'vehicle_breakdown': tc_local['purple'],
+        'pot_holes': tc_local['yellow'],
+        'water_logging': tc_local['green'],
+        'construction': tc_local['accent'],
+        'accident': tc_local['red'],
+        'congestion': tc_local['orange'],
+        'tree_fall': tc_local['pink'],
+        'others': tc_local['grey'],
+        'protest': tc_local['accent'],
+        'procession': tc_local['green'],
+    }
+
 
 def get_base_rate(corridor, hawkes_data, is_night=False):
     h = hawkes_data.get(corridor, {}) if hawkes_data else {}
@@ -216,9 +733,10 @@ def compute_corridor_risk_scores(hour: int, _hawkes_data, _evt_data, _df):
 
 def _risk_color(score):
     """Map 0-100 ATLAS risk score to a display colour."""
-    if score >= 60: return '#ff6b6b'
-    if score >= 30: return '#ffd93d'
-    return '#10b981'
+    tc_local = get_theme_colors()
+    if score >= 60: return tc_local['red']
+    if score >= 30: return tc_local['yellow']
+    return tc_local['green']
 
 
 def _risk_label(score):
@@ -288,16 +806,30 @@ def compute_corridor_dna(_df, _hawkes_data):
         corr: {ax: round(normed[ax].get(corr, 0), 3) for ax in axes}
         for corr in raw
     }
-
-
 # ─── Sidebar Navigation ──────────────────────────────────────────────────────
 st.sidebar.markdown("""
-<div style='text-align:center; padding: 12px 0 20px 0;'>
+<div style='text-align:center; padding: 12px 0 10px 0;'>
   <div style='font-size:2.5rem;'>🚦</div>
-  <div style='color:#00d4ff; font-weight:700; font-size:1.2rem; margin-top:4px;'>ATLAS</div>
-  <div style='color:#6b7280; font-size:0.75rem;'>Adaptive Traffic Learning & Analysis System</div>
+  <div style='color: var(--accent); font-weight:700; font-size:1.2rem; margin-top:4px;'>ATLAS</div>
+  <div style='color: var(--text-sidebar-muted); font-size:0.75rem;'>Adaptive Traffic Learning & Analysis System</div>
 </div>
 """, unsafe_allow_html=True)
+
+# Theme Selector dropdown
+st.sidebar.markdown("<div style='margin-bottom:-15px; font-weight:600; font-size:0.82rem; color: var(--text-sidebar-muted);'>Appearance Mode</div>", unsafe_allow_html=True)
+theme_select = st.sidebar.selectbox(
+    "Appearance Mode",
+    ["🌙 Dark / Night Mode", "🍦 Warm Cream Light"],
+    index=0 if st.session_state.theme == "dark" else 1,
+    key="theme_selection_box",
+    label_visibility="collapsed"
+)
+new_theme = "dark" if "Dark" in theme_select else "light"
+if new_theme != st.session_state.theme:
+    st.session_state.theme = new_theme
+    st.rerun()
+
+st.sidebar.markdown("<div style='margin-bottom:-15px; font-weight:600; font-size:0.82rem; color: var(--text-sidebar-muted); margin-top:10px;'>Navigation</div>", unsafe_allow_html=True)
 
 if "active_page" not in st.session_state:
     st.session_state.active_page = "🏠 Command Center"
@@ -321,14 +853,14 @@ page = st.sidebar.radio(
 st.session_state.active_page = page
 st.sidebar.divider()
 st.sidebar.markdown("""
-<div style='color:#6b7280; font-size:0.72rem; padding:8px;'>
-<b style='color:#9ca3af'>Dataset</b><br>
+<div style='color: var(--text-sidebar-muted); font-size:0.72rem; padding:8px;'>
+<b style='color: var(--text-main)'>Dataset</b><br>
 Astram Events · Bengaluru<br>
 8,173 events · Nov 2023–Apr 2024<br><br>
-<b style='color:#9ca3af'>Network Coverage</b><br>
-<span style='color:#10b981; font-weight:600;'>13 of 22</span> major arterials monitored<br>
-<span style='color:#6b7280; font-size:0.68rem;'>Coverage expands as Astram logs more corridors</span><br><br>
-<b style='color:#9ca3af'>Problem Statement</b><br>
+<b style='color: var(--text-main)'>Network Coverage</b><br>
+<span style='color: var(--badge-ok-color); font-weight:600;'>13 of 22</span> major arterials monitored<br>
+<span style='color: var(--text-sidebar-muted); font-size:0.68rem;'>Coverage expands as Astram logs more corridors</span><br><br>
+<b style='color: var(--text-main)'>Problem Statement</b><br>
 PS2 · Event-Driven Congestion<br>
 HackerEarth Traffic Challenge
 </div>
@@ -355,7 +887,7 @@ if df is None:
 # ════════════════════════════════════════════════════════════════════════════════
 if page == "🏠 Command Center":
     st.markdown("## 🚦 ATLAS Command Center")
-    st.markdown("<div style='color:#6b7280; margin-bottom:20px;'>Real-time event intelligence · Bengaluru traffic network · Nov 2023–Apr 2024</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); margin-bottom:20px;'>Real-time event intelligence · Bengaluru traffic network · Nov 2023–Apr 2024</div>", unsafe_allow_html=True)
 
     # ── KPI Row ──────────────────────────────────────────────────────────────
     c1, c2, c3, c4, c5 = st.columns(5)
@@ -378,20 +910,19 @@ if page == "🏠 Command Center":
 
     # ── Row 2: Hourly heatmap + corridor breakdown ────────────────────────────
     col_left, col_right = st.columns([3, 2])
-
     with col_left:
         st.markdown('<div class="section-header"><h3>⏱ Hourly Event Intensity (IST)</h3></div>', unsafe_allow_html=True)
         hourly = df.groupby(['hour_IST', 'event_cause_clean']).size().reset_index(name='count')
         top_causes = df['event_cause_clean'].value_counts().head(5).index.tolist()
         hourly_top = hourly[hourly['event_cause_clean'].isin(top_causes)]
         fig_h = px.bar(hourly_top, x='hour_IST', y='count', color='event_cause_clean',
-                       color_discrete_sequence=['#00d4ff','#ff6b6b','#ffd93d','#a855f7','#10b981'])
-        fig_h.update_layout(**DARK_LAYOUT, title="", barmode='stack',
-                            xaxis=DARK_AXIS, yaxis=DARK_AXIS,
-                            legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color='white', size=10)))
-        fig_h.add_vrect(x0=19.5, x1=23.5, fillcolor='#ff6b6b', opacity=0.08, annotation_text="Night window")
-        fig_h.add_vrect(x0=-0.5, x1=5.5, fillcolor='#ff6b6b', opacity=0.08)
-        st.plotly_chart(fig_h, use_container_width=True)
+                       color_discrete_map=get_cause_colors())
+        fig_h.update_layout(**get_theme_layout(), title="", barmode='stack',
+                            xaxis=get_theme_axis(), yaxis=get_theme_axis(),
+                            legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color=tc['plotly_text'], size=10)))
+        fig_h.add_vrect(x0=19.5, x1=23.5, fillcolor=tc['red'], opacity=0.08, annotation_text="Night window")
+        fig_h.add_vrect(x0=-0.5, x1=5.5, fillcolor=tc['red'], opacity=0.08)
+        plot(fig_h)
 
     with col_right:
         st.markdown('<div class="section-header"><h3>🛣 Top Corridors</h3></div>', unsafe_allow_html=True)
@@ -399,13 +930,13 @@ if page == "🏠 Command Center":
         corr_data.columns = ['corridor', 'count']
         fig_c = go.Figure(go.Bar(
             x=corr_data['count'], y=corr_data['corridor'],
-            orientation='h', marker_color='#00d4ff',
+            orientation='h', marker_color=tc['accent'],
             marker_line_width=0,
         ))
-        fig_c.update_layout(**DARK_LAYOUT, title="",
-                            xaxis=DARK_AXIS,
-                            yaxis=dict(autorange='reversed', gridcolor='#2d3150', zeroline=False))
-        st.plotly_chart(fig_c, use_container_width=True)
+        fig_c.update_layout(**get_theme_layout(), title="",
+                            xaxis=get_theme_axis(),
+                            yaxis=dict(autorange='reversed', gridcolor=tc['bg_grid'], zeroline=False))
+        plot(fig_c)
 
     # ── Row 3: ATLAS Risk Score Map + Monthly Trends ─────────────────────────
     st.markdown('<div class="section-header"><h3>🎯 ATLAS Risk Score Map — Select Hour to View Shift Risk</h3></div>', unsafe_allow_html=True)
@@ -433,7 +964,7 @@ if page == "🏠 Command Center":
         sample_bg = df_map.sample(min(1500, len(df_map)), random_state=42)
         fig_map.add_trace(go.Scattermap(
             lat=sample_bg['latitude'], lon=sample_bg['longitude'],
-            mode='markers', marker=dict(size=4, color='#2d3150', opacity=0.4),
+            mode='markers', marker=dict(size=4, color=tc['bg_grid'], opacity=0.4),
             name='Events', hoverinfo='skip', showlegend=False,
         ))
         # Corridor risk bubbles
@@ -451,18 +982,18 @@ if page == "🏠 Command Center":
                 showlegend=False,
             ))
         # Legend bubbles
-        for lbl, col_r in [('HIGH Risk (>=60)', '#ff6b6b'), ('MEDIUM Risk (30-59)', '#ffd93d'), ('LOW Risk (<30)', '#10b981')]:
+        for lbl, col_r in [('HIGH Risk (>=60)', tc['red']), ('MEDIUM Risk (30-59)', tc['yellow']), ('LOW Risk (<30)', tc['green'])]:
             fig_map.add_trace(go.Scattermap(
                 lat=[None], lon=[None], mode='markers',
                 marker=dict(size=12, color=col_r),
                 name=lbl, showlegend=True,
             ))
         fig_map.update_layout(
-            map=dict(style='carto-darkmatter', center=dict(lat=13.0, lon=77.58), zoom=10),
-            paper_bgcolor='#0f1117', margin=dict(l=0,r=0,t=0,b=0), height=420,
-            legend=dict(bgcolor='rgba(15,17,23,0.8)', font=dict(color='white', size=9)),
+            map=dict(style='carto-darkmatter' if st.session_state.theme == 'dark' else 'carto-positron', center=dict(lat=13.0, lon=77.58), zoom=10),
+            paper_bgcolor=tc['plotly_paper'], margin=dict(l=0,r=0,t=0,b=0), height=420,
+            legend=dict(bgcolor='rgba(15,17,23,0.8)' if st.session_state.theme == 'dark' else 'rgba(250,246,238,0.8)', font=dict(color=tc['plotly_text'], size=9)),
         )
-        st.plotly_chart(fig_map, use_container_width=True)
+        plot(fig_map)
         st.caption(f"Bubble size + color = ATLAS Risk Score at {risk_hour:02d}:00 IST. Score = 50% Hawkes rate + 25% acute fraction + 25% EVT tail shape.")
 
     with col_trend:
@@ -479,19 +1010,19 @@ if page == "🏠 Command Center":
                 text=[f"{s}/100" for s in rs_df['Score']],
                 textposition='auto', textfont=dict(color='white', size=10),
             ))
-            fig_rs.add_vline(x=60, line_dash='dash', line_color='#ff6b6b', annotation_text='High risk')
-            fig_rs.add_vline(x=30, line_dash='dash', line_color='#ffd93d', annotation_text='Medium')
-            fig_rs.update_layout(**DARK_LAYOUT, title=f"Risk scores @ {risk_hour:02d}:00 IST",
+            fig_rs.add_vline(x=60, line_dash='dash', line_color=tc['red'], annotation_text='High risk')
+            fig_rs.add_vline(x=30, line_dash='dash', line_color=tc['yellow'], annotation_text='Medium')
+            fig_rs.update_layout(**get_theme_layout(), title=f"Risk scores @ {risk_hour:02d}:00 IST",
                                  xaxis=dict(range=[0,100], title='ATLAS Risk Score (0-100)',
-                                            gridcolor='#2d3150', zeroline=False),
-                                 yaxis=dict(autorange='reversed', gridcolor='#2d3150', zeroline=False))
-            st.plotly_chart(fig_rs, use_container_width=True)
+                                            gridcolor=tc['bg_grid'], zeroline=False, color=tc['plotly_text']),
+                                 yaxis=dict(autorange='reversed', gridcolor=tc['bg_grid'], zeroline=False, color=tc['plotly_text']))
+            plot(fig_rs)
 
     st.divider()
 
     # ── Row 4: Shift Start Pre-Positioning Planner ────────────────────────────
     st.markdown('<div class="section-header"><h3>📅 Shift Start Pre-Positioning Planner (8 PM – 2 AM, 360 min)</h3></div>', unsafe_allow_html=True)
-    st.markdown("<div style='color:#6b7280; font-size:0.85rem; margin-bottom:8px;'>Hawkes stationary rate forecast: λ = μ_night / (1 − n). Tonight's recommended tow truck deployment based on fitted parameters.</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); font-size:0.85rem; margin-bottom:8px;'>Hawkes stationary rate forecast: λ = μ_night / (1 − n). Tonight's recommended tow truck deployment based on fitted parameters.</div>", unsafe_allow_html=True)
     if hawkes:
         SHIFT_MINS = 360  # 8 PM to 2 AM
         tier1_corrs = ['Mysore Road', 'Bellary Road 1', 'Tumkur Road', 'Bellary Road 2']
@@ -527,13 +1058,13 @@ if page == "🏠 Command Center":
                 corr   = row['corridor']
                 tows   = tow_alloc.get(corr, 0)
                 score  = risk_scores.get(corr, 0)
-                color  = '#ff6b6b' if tows == 2 else '#ffd93d' if tows == 1 else '#9ca3af'
+                color  = tc['red'] if tows == 2 else tc['yellow'] if tows == 1 else tc['grey']
                 col_p.markdown(f"""
                 <div class='metric-card' style='border-color:{color}44; text-align:center;'>
-                  <p style='color:#9ca3af; font-size:0.78rem;'>{corr}</p>
+                  <p style='color:var(--text-sidebar-muted); font-size:0.78rem;'>{corr}</p>
                   <h2 style='color:{color}; font-size:1.6rem;'>{'🚛'*tows or '—'}</h2>
                   <p style='color:{color}; font-weight:700; margin:0;'>{tows} tow truck{'s' if tows != 1 else ''}</p>
-                  <p style='color:#9ca3af; font-size:0.75rem; margin-top:4px;'>
+                  <p style='color:var(--text-sidebar-muted); font-size:0.75rem; margin-top:4px;'>
                     ~{row['expected_events']} events expected<br>
                     n={row['n']:.3f} · {row['dom_veh'].replace('_',' ')}
                   </p>
@@ -550,16 +1081,17 @@ if page == "🏠 Command Center":
         month_map = {11:'Nov', 12:'Dec', 1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr'}
         monthly_total = monthly_total[monthly_total['month'].isin(month_map.keys())]
         monthly_total['month_name'] = monthly_total['month'].map(month_map)
+
         fig_m = go.Figure([
             go.Bar(x=monthly_total['month_name'], y=monthly_total['total'],
-                   marker_color='#00d4ff', opacity=0.8, name='Total events'),
+                   marker_color=tc['accent'], opacity=0.8, name='Total events'),
         ])
-        fig_m.update_layout(**DARK_LAYOUT, title="",
+        fig_m.update_layout(**get_theme_layout(), title="",
                             xaxis=dict(categoryorder='array',
                                        categoryarray=['Nov','Dec','Jan','Feb','Mar','Apr'],
-                                       gridcolor='#2d3150', zeroline=False),
-                            yaxis=DARK_AXIS)
-        st.plotly_chart(fig_m, use_container_width=True)
+                                       gridcolor=tc['bg_grid'], zeroline=False),
+                            yaxis=get_theme_axis())
+        plot(fig_m)
 
     with col_br:
         if hawkes:
@@ -572,25 +1104,24 @@ if page == "🏠 Command Center":
                 ]).sort_values('Branching Ratio', ascending=False)
                 fig_br = go.Figure(go.Bar(
                     x=br_df['Corridor'], y=br_df['Branching Ratio'],
-                    marker_color=['#ff6b6b' if r > 0.3 else '#ffd93d' if r > 0.1 else '#00d4ff'
+                    marker_color=[tc['red'] if r > 0.3 else tc['yellow'] if r > 0.1 else tc['accent']
                                   for r in br_df['Branching Ratio']],
                     text=[f"n={r:.3f}" for r in br_df['Branching Ratio']],
-                    textposition='outside', textfont=dict(color='white', size=11),
+                    textposition='outside', textfont=dict(color=tc['plotly_text'], size=11),
                 ))
-                fig_br.add_hline(y=0.3, line_dash='dash', line_color='#ff6b6b')
-                fig_br.update_layout(**DARK_LAYOUT, title="",
-                                     xaxis=DARK_AXIS,
-                                     yaxis=dict(title='n = α/β', gridcolor='#2d3150', zeroline=False))
-                st.plotly_chart(fig_br, use_container_width=True)
+                fig_br.add_hline(y=0.3, line_dash='dash', line_color=tc['red'])
+                fig_br.update_layout(**get_theme_layout(), title="",
+                                     xaxis=get_theme_axis(),
+                                     yaxis=dict(title='n = α/β', gridcolor=tc['bg_grid'], zeroline=False))
+                plot(fig_br)
                 st.caption("n = fraction of events caused by prior events on same corridor.")
-
 
 # ════════════════════════════════════════════════════════════════════════════════
 # SCREEN 2 — CAUSE INTELLIGENCE
 # ════════════════════════════════════════════════════════════════════════════════
 elif page == "🔗 Cause Intelligence":
     st.markdown("## 🔗 Cause Intelligence")
-    st.markdown("<div style='color:#6b7280; margin-bottom:20px;'>CauseGraph · EM Mixture Decomposition · Causal Cascade Analysis</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); margin-bottom:20px;'>CauseGraph · EM Mixture Decomposition · Causal Cascade Analysis</div>", unsafe_allow_html=True)
 
     col_l, col_r = st.columns([3, 2])
 
@@ -611,7 +1142,7 @@ elif page == "🔗 Cause Intelligence":
                     x1, y1 = pos[e['dst']]
                     fig_cg.add_trace(go.Scatter(
                         x=[x0, x1, None], y=[y0, y1, None], mode='lines',
-                        line=dict(width=0.5 + 4 * e['weight']/max_w, color='#5555cc'),
+                        line=dict(width=0.5 + 4 * e['weight']/max_w, color=tc['purple']),
                         hoverinfo='none', showlegend=False,
                     ))
                 nodes = list(G.nodes())
@@ -619,27 +1150,24 @@ elif page == "🔗 Cause Intelligence":
                 nx_x = [pos[n][0] for n in nodes]
                 nx_y = [pos[n][1] for n in nodes]
                 sizes = [15 + 40 * cent.get(n, {}).get('betweenness', 0) * 10 for n in nodes]
-                colors = ['#ff6b6b' if cent.get(n, {}).get('betweenness', 0) > 0.05 else '#00d4ff' for n in nodes]
+                colors = [tc['red'] if cent.get(n, {}).get('betweenness', 0) > 0.05 else tc['accent'] for n in nodes]
                 fig_cg.add_trace(go.Scatter(
                     x=nx_x, y=nx_y, mode='markers+text',
                     marker=dict(size=sizes, color=colors, opacity=0.9,
-                                line=dict(width=1, color='white')),
+                                line=dict(width=1, color=tc['plotly_paper'])),
                     text=nodes, textposition='top center',
-                    textfont=dict(size=10, color='white'),
+                    textfont=dict(size=10, color=tc['plotly_text']),
                     hovertemplate='<b>%{text}</b><extra></extra>',
                     showlegend=False,
                 ))
                 fig_cg.update_layout(
-                    plot_bgcolor='#1a1d2e',
-                    paper_bgcolor='#0f1117',
-                    font=dict(family='Inter', color='white'),
-                    margin=dict(l=40, r=20, t=40, b=40),
+                    **get_theme_layout(),
                     height=420,
                     xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                     yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                     title="Edge weight = co-occurrences within 2h on same corridor",
                 )
-                st.plotly_chart(fig_cg, use_container_width=True)
+                plot(fig_cg)
 
     with col_r:
         st.markdown('<div class="section-header"><h3>📊 Top Causal Cascades</h3></div>', unsafe_allow_html=True)
@@ -649,10 +1177,10 @@ elif page == "🔗 Cause Intelligence":
                 intensity = min(1.0, e['weight'] / 1200)
                 color = f"rgba(255, 107, 107, {0.3 + 0.7*intensity})"
                 st.markdown(f"""
-                <div style='background:#1a1d2e; border:1px solid #2d3150; border-radius:8px;
+                <div style='background: var(--card-bg-start); border:1px solid var(--card-border); border-radius:8px;
                             padding:10px 14px; margin:5px 0; display:flex; justify-content:space-between;'>
-                  <span style='color:#e5e7eb;'>{e['src']} → {e['dst']}</span>
-                  <span style='color:#ff6b6b; font-weight:600;'>{e['weight']}</span>
+                  <span style='color: var(--text-main);'>{e['src']} → {e['dst']}</span>
+                  <span style='color: var(--badge-high-color); font-weight:600;'>{e['weight']}</span>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -693,24 +1221,24 @@ elif page == "🔗 Cause Intelligence":
             if not df_res.empty:
                 fig_em = go.Figure()
                 fig_em.add_trace(go.Histogram(x=df_res['log_resolution_mins'], nbinsx=70,
-                                              name='Data', marker_color='#3d4166',
+                                              name='Data', marker_color=tc['grey'],
                                               opacity=0.8, histnorm='probability density'))
                 x_range = np.linspace(df_res['log_resolution_mins'].min(),
                                       df_res['log_resolution_mins'].max(), 300)
                 for k_idx, (mu_k, sig_k, pi_k, col, lbl) in enumerate(zip(
                     em_params.get('all_mu', []), em_params.get('all_sigma', []),
                     em_params.get('all_pi', []),
-                    ['#00d4ff', '#ff6b6b', '#ffd93d'],
+                    [tc['accent'], tc['red'], tc['yellow']],
                     ['Acute', 'Chronic', 'Mixed'],
                 )):
                     y = pi_k * norm_dist.pdf(x_range, mu_k, sig_k)
                     fig_em.add_trace(go.Scatter(x=x_range, y=y, name=f'{lbl} (π={pi_k:.2f})',
                                                 line=dict(color=col, width=2.5)))
-                fig_em.update_layout(**DARK_LAYOUT, title="log(resolution_mins) — EM decomposition",
-                                     xaxis=dict(title="log(resolution_mins)", gridcolor='#2d3150', zeroline=False),
-                                     yaxis=dict(title="Density", gridcolor='#2d3150', zeroline=False),
-                                     legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color='white', size=10)))
-                st.plotly_chart(fig_em, use_container_width=True)
+                fig_em.update_layout(**get_theme_layout(), title="log(resolution_mins) — EM decomposition",
+                                     xaxis=dict(title="log(resolution_mins)", gridcolor=tc['bg_grid'], zeroline=False),
+                                     yaxis=dict(title="Density", gridcolor=tc['bg_grid'], zeroline=False),
+                                     legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color=tc['plotly_text'], size=10)))
+                plot(fig_em)
             else:
                 st.info("No resolution data available.")
 
@@ -738,15 +1266,15 @@ elif page == "🔗 Cause Intelligence":
     if not df_res2.empty:
         cause_order = df_res2.groupby('event_cause_clean')['resolution_mins'].median().sort_values().index.tolist()
         fig_box = go.Figure()
-        colors_box = ['#00d4ff','#10b981','#ffd93d','#a855f7','#ff6b6b','#f97316','#ec4899','#8b5cf6']
         for i, cause in enumerate(cause_order[:8]):
             data = df_res2[df_res2['event_cause_clean'] == cause]['resolution_mins'] / 60  # hours
-            fig_box.add_trace(go.Box(y=data, name=cause, marker_color=colors_box[i % len(colors_box)],
+            box_col = get_cause_colors().get(cause, tc['grey'])
+            fig_box.add_trace(go.Box(y=data, name=cause, marker_color=box_col,
                                       boxmean=True, boxpoints=False))
-        fig_box.update_layout(**DARK_LAYOUT, title="Resolution time (hours) — log scale",
-                              xaxis=DARK_AXIS,
-                              yaxis=dict(type='log', title='Hours (log scale)', gridcolor='#2d3150', zeroline=False))
-        st.plotly_chart(fig_box, use_container_width=True)
+        fig_box.update_layout(**get_theme_layout(), title="Resolution time (hours) — log scale",
+                              xaxis=get_theme_axis(),
+                              yaxis=dict(type='log', title='Hours (log scale)', gridcolor=tc['bg_grid'], zeroline=False))
+        plot(fig_box)
     else:
         st.info("No resolution time data available for box plots.")
 
@@ -756,7 +1284,7 @@ elif page == "🔗 Cause Intelligence":
 # ════════════════════════════════════════════════════════════════════════════════
 elif page == "📈 Risk Planner":
     st.markdown("## 📈 Risk Planner — EVT Analysis")
-    st.markdown("<div style='color:#6b7280; margin-bottom:20px;'>Extreme Value Theory · Return Period Planning · Chronic Event Duration Buffers</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); margin-bottom:20px;'>Extreme Value Theory · Return Period Planning · Chronic Event Duration Buffers</div>", unsafe_allow_html=True)
 
     if not evt_data:
         st.warning("Run `python run_all.py` to generate EVT results.")
@@ -782,8 +1310,8 @@ elif page == "📈 Risk Planner":
         st.markdown('<div class="section-header"><h3>📉 Return Level Curves — Planning Buffers</h3></div>', unsafe_allow_html=True)
         periods = np.logspace(0, 2.3, 60)
         fig_rl = go.Figure()
-        palette = {'road_surface': '#ff6b6b', 'drainage': '#00d4ff',
-                   'construction': '#ffd93d', 'vegetation': '#a855f7'}
+        palette = {'road_surface': tc['red'], 'drainage': tc['accent'],
+                   'construction': tc['yellow'], 'vegetation': tc['purple']}
         for group, res in evt_data.items():
             if 'xi' not in res:
                 continue
@@ -798,36 +1326,39 @@ elif page == "📈 Risk Planner":
                 else:
                     lev = u + (sigma / xi) * ((rate / p) ** xi - 1)
                 levels.append(max(lev, u) / 1440)
-            col = palette.get(group, '#9ca3af')
+            col = palette.get(group, tc['grey'])
             fig_rl.add_trace(go.Scatter(x=periods, y=levels, name=group,
                                          line=dict(color=col, width=2.5)))
             # CI ribbon at 30 days
             lo = res.get('ci_30d_lo_days', levels[20] * 0.7)
             hi = res.get('ci_30d_hi_days', levels[20] * 1.3)
             fig_rl.add_trace(go.Scatter(x=[28, 32, 32, 28], y=[lo, lo, hi, hi],
-                                         fill='toself', fillcolor=RGBA_FILL.get(col, 'rgba(128,128,128,0.15)'),
+                                         fill='toself', fillcolor=get_rgba_fill().get(col, 'rgba(128,128,128,0.15)'),
                                          line_width=0, showlegend=False))
 
-        fig_rl.update_layout(**DARK_LAYOUT,
+
+
+
+        fig_rl.update_layout(**get_theme_layout(),
                              title="Expected worst-case event duration vs return period",
-                             xaxis=dict(type='log', title='Return period (days)', gridcolor='#2d3150', zeroline=False),
-                             yaxis=dict(title='Worst-case duration (days)', gridcolor='#2d3150', zeroline=False),
-                             legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color='white')))
-        fig_rl.add_vline(x=30, line_dash='dash', line_color='#666', annotation_text='30-day window')
-        st.plotly_chart(fig_rl, use_container_width=True)
+                             xaxis=dict(type='log', title='Return period (days)', range=[0, np.log10(250)], dtick=1, gridcolor=tc['bg_grid'], zeroline=False),
+                             yaxis=dict(title='Worst-case duration (days)', gridcolor=tc['bg_grid'], zeroline=False),
+                             legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color=tc['plotly_text'])))
+        fig_rl.add_vline(x=30, line_dash='dash', line_color=tc['grey'], annotation_text='30-day window')
+        plot(fig_rl)
 
         # ── Policy implications ────────────────────────────────────────────────
         st.markdown('<div class="section-header"><h3>📋 Policy Implications</h3></div>', unsafe_allow_html=True)
         for group, res in evt_data.items():
             if 'policy_implication' not in res:
                 continue
-            tail_col = {'heavy': '#ff6b6b', 'exponential': '#ffd93d', 'bounded': '#10b981'}
-            col = tail_col.get(res['tail_type'], '#9ca3af')
+            tail_col = {'heavy': tc['red'], 'exponential': tc['yellow'], 'bounded': tc['green']}
+            col = tail_col.get(res['tail_type'], tc['grey'])
             st.markdown(f"""
-            <div style='background:#1a1d2e; border-left:4px solid {col}; border-radius:0 8px 8px 0;
+            <div style='background: var(--card-bg-start); border-left:4px solid {col}; border-radius:0 8px 8px 0;
                         padding:14px 18px; margin:8px 0;'>
               <b style='color:{col};'>{group.upper()}</b>
-              <p style='color:#e5e7eb; margin:6px 0 0 0; font-size:0.9rem;'>{res['policy_implication']}</p>
+              <p style='color: var(--text-main); margin:6px 0 0 0; font-size:0.9rem;'>{res['policy_implication']}</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -850,33 +1381,32 @@ elif page == "📈 Risk Planner":
                     x0, y0 = node_pos.get(e['src'], (0,0))
                     x1, y1 = node_pos.get(e['dst'], (0,0))
                     fig_te.add_trace(go.Scatter(x=[x0,x1,None], y=[y0,y1,None], mode='lines',
-                                                 line=dict(width=0.5+4*e['te']/max_te, color='#5555cc'),
+                                                 line=dict(width=0.5+4*e['te']/max_te, color=tc['purple']),
                                                  hoverinfo='none', showlegend=False))
                 for node in all_nodes:
                     x, y = node_pos[node]
                     is_src = out_str.get(node, 0) > 0.01
                     fig_te.add_trace(go.Scatter(
                         x=[x], y=[y], mode='markers+text',
-                        marker=dict(size=20, color='#ff6b6b' if is_src else '#00d4ff', opacity=0.9),
+                        marker=dict(size=20, color=tc['red'] if is_src else tc['accent'], opacity=0.9),
                         text=[node.replace(' Road','').replace('Bellary','Bell.')],
-                        textposition='top center', textfont=dict(color='white', size=9),
+                        textposition='top center', textfont=dict(color=tc['plotly_text'], size=9),
                         hovertemplate=f'<b>{node}</b><br>Out-strength: {out_str.get(node,0):.4f}<extra></extra>',
                         showlegend=False,
                     ))
-                fig_te.update_layout(**DARK_LAYOUT, height=350,
+                fig_te.update_layout(**get_theme_layout(), height=350,
                                      xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                                      yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                                     title="Red = contagion SOURCE corridors (high out-strength)")
-                st.plotly_chart(fig_te, use_container_width=True)
+                                     title="SOURCE contagion corridors (high out-strength)")
+                plot(fig_te)
                 st.caption(f"Significant pathways found: {len(sig_edges)}. Edge width ∝ Transfer Entropy strength.")
-
 
 # ════════════════════════════════════════════════════════════════════════════════
 # SCREEN 4 — DISPATCH ASSISTANT (ResourceRAG)
 # ════════════════════════════════════════════════════════════════════════════════
 elif page == "🤖 Dispatch Assistant":
     st.markdown("## 🤖 ATLAS Dispatch Bot")
-    st.markdown("<div style='color:#6b7280; margin-bottom:20px;'>Chat with ATLAS · Type any incident in plain English · Same M6 + GenAI backend as the field bot</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); margin-bottom:20px;'>Chat with ATLAS · Type any incident in plain English · Same M6 + GenAI backend as the field bot</div>", unsafe_allow_html=True)
 
     rag_ready = (MODEL_DIR / "rag_meta.parquet").exists()
 
@@ -968,18 +1498,18 @@ elif page == "🤖 Dispatch Assistant":
 
     # ── Render chat history ───────────────────────────────────────────────────
     for msg in st.session_state.atlas_messages:
-        with st.chat_message(msg["role"], avatar="🚦" if msg["role"] == "assistant" else "👮"):
+        with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
     # ── Chat input ────────────────────────────────────────────────────────────
     if prompt := st.chat_input("Report an incident or planned event…", key="atlas_chat_input"):
         # Show user message immediately
         st.session_state.atlas_messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user", avatar="👮"):
+        with st.chat_message("user"):
             st.markdown(prompt)
 
         # Parse + dispatch
-        with st.chat_message("assistant", avatar="🚦"):
+        with st.chat_message("assistant"):
             with st.spinner("Querying ATLAS models…"):
                 try:
                     from bot.nlp_parser import parse_incident
@@ -1061,7 +1591,7 @@ elif page == "🤖 Dispatch Assistant":
 
     # ── Structured form (power user / offline fallback) ───────────────────────
     st.markdown("#### 🔧 Advanced Structured Query")
-    st.markdown("<div style='color:#6b7280; font-size:0.82rem; margin-bottom:8px;'>Use the dropdowns below if you prefer structured input over the chat interface.</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); font-size:0.82rem; margin-bottom:8px;'>Use the dropdowns below if you prefer structured input over the chat interface.</div>", unsafe_allow_html=True)
     rag_ready = (MODEL_DIR / "rag_meta.parquet").exists()
     col_form, col_result = st.columns([2, 3])
 
@@ -1125,13 +1655,13 @@ elif page == "🤖 Dispatch Assistant":
             st.markdown(f"""
             <div class='rec-card'>
               <h4>📦 Response Recommendation</h4>
-              <p style='color:#e5e7eb;'>
+              <p style='color:var(--text-main);'>
                 🔴 <b>Road Closure:</b> {'Required' if card['road_closure_recommended'] else 'Not Required'}<br>
                 ⏱ <b>Resolution IQR:</b> {card['resolution_iqr_mins'][0]:.0f} – {card['resolution_iqr_mins'][1]:.0f} minutes<br>
                 🔍 <b>Similar Events Found:</b> {card['n_similar_events']}<br>
-                {'⚠️ <b style="color:#ff6b6b">FALLBACK USED</b>: Low similarity — cause-only lookup applied.' if card.get('fallback_used') else ''}
+                {'⚠️ <b style="color:var(--red)">FALLBACK USED</b>: Low similarity — cause-only lookup applied.' if card.get('fallback_used') else ''}
               </p>
-              {f'<p style="color:#ff6b6b; font-size:0.85rem;">{card.get("warning","")}</p>' if card.get('low_confidence_warning') else ''}
+              {f'<p style="color:var(--red); font-size:0.85rem;">{card.get("warning","")}</p>' if card.get('low_confidence_warning') else ''}
             </div>
             """, unsafe_allow_html=True)
 
@@ -1162,11 +1692,11 @@ elif page == "🤖 Dispatch Assistant":
 
                 st.markdown(f'<div class="section-header"><h3>📻 Radio Dispatch Script ({src_tag})</h3></div>', unsafe_allow_html=True)
                 st.markdown(f"""
-                <div style="background-color: #1a1d2e; border: 1px solid #2d3150; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
-                    <p style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 5px;">🇬🇧 <b>English:</b></p>
-                    <code style="display: block; background: #0f1117; color: #00d4ff; padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; font-size: 0.9rem;">{radio['english']}</code>
-                    <p style="color: #9ca3af; font-size: 0.85rem; margin-top: 15px; margin-bottom: 5px;">🇮🇳 <b>ಕನ್ನಡ (Kannada):</b></p>
-                    <code style="display: block; background: #0f1117; color: #ffd93d; padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; font-size: 0.9rem;">{radio['kannada']}</code>
+                <div style="background-color: var(--card-bg-start); border: 1px solid var(--card-border); border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                    <p style="color: var(--text-sidebar-muted); font-size: 0.85rem; margin-bottom: 5px;">🇬🇧 <b>English:</b></p>
+                    <code style="display: block; background: var(--bg-app); color: var(--accent); padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; font-size: 0.9rem;">{radio['english']}</code>
+                    <p style="color: var(--text-sidebar-muted); font-size: 0.85rem; margin-top: 15px; margin-bottom: 5px;">🇮🇳 <b>ಕನ್ನಡ (Kannada):</b></p>
+                    <code style="display: block; background: var(--bg-app); color: var(--badge-medium-color); padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; font-size: 0.9rem;">{radio['kannada']}</code>
                 </div>
                 """, unsafe_allow_html=True)
             except Exception as re:
@@ -1183,9 +1713,9 @@ elif page == "🤖 Dispatch Assistant":
                 sim_events['resolution_hrs'] = (sim_events['resolution_mins'] / 60).round(1)
                 sim_events.columns = ['ID', 'Cause', 'Corridor', 'Priority',
                                        'Res (min)', 'Quality Score', 'Res (hr)']
-                st.dataframe(
-                    sim_events[['ID', 'Cause', 'Corridor', 'Priority', 'Res (hr)', 'Quality Score']].reset_index(drop=True),
-                    use_container_width=True,
+                st.markdown(
+                    sim_events[['ID', 'Cause', 'Corridor', 'Priority', 'Res (hr)', 'Quality Score']].reset_index(drop=True).to_html(index=False),
+                    unsafe_allow_html=True,
                 )
         elif not rag_ready:
             st.info("Run `python run_all.py` to build the ResourceRAG index first.")
@@ -1193,7 +1723,7 @@ elif page == "🤖 Dispatch Assistant":
     # ── Corridor DNA Radar ──────────────────────────────────────────────────────
     st.divider()
     st.markdown('<div class="section-header"><h3>🧬 Corridor DNA Fingerprint Radar</h3></div>', unsafe_allow_html=True)
-    st.markdown("<div style='color:#6b7280; font-size:0.85rem; margin-bottom:8px;'>Five-axis risk fingerprint per corridor (all axes min-max normalized across the fleet). Compare any two corridors side-by-side.</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); font-size:0.85rem; margin-bottom:8px;'>Five-axis risk fingerprint per corridor (all axes min-max normalized across the fleet). Compare any two corridors side-by-side.</div>", unsafe_allow_html=True)
 
     corridor_dna = compute_corridor_dna(df, hawkes)
     if corridor_dna:
@@ -1215,7 +1745,7 @@ elif page == "🤖 Dispatch Assistant":
             st.warning("Select two different corridors to compare their DNA fingerprints.")
         else:
             fig_dna = go.Figure()
-            for corr, col_dna in [(corr_a, '#00d4ff'), (corr_b, '#ff6b6b')]:
+            for corr, col_dna in [(corr_a, tc['accent']), (corr_b, tc['red'])]:
                 vals = [corridor_dna[corr].get(ax, 0) for ax in dna_axes]
                 vals_closed = vals + [vals[0]]  # close the polygon
                 labels_closed = dna_labels + [dna_labels[0]]
@@ -1228,27 +1758,27 @@ elif page == "🤖 Dispatch Assistant":
 
             fig_dna.update_layout(
                 polar=dict(
-                    bgcolor='#1a1d2e',
-                    radialaxis=dict(visible=True, range=[0, 1], gridcolor='#2d3150',
-                                    tickfont=dict(color='#6b7280', size=9)),
-                    angularaxis=dict(gridcolor='#2d3150', linecolor='#2d3150',
-                                     tickfont=dict(color='white', size=11)),
+                    bgcolor=tc['plotly_bg'],
+                    radialaxis=dict(visible=True, range=[0, 1], gridcolor=tc['bg_grid'],
+                                    tickfont=dict(color=tc['text_sidebar_muted'], size=9)),
+                    angularaxis=dict(gridcolor=tc['bg_grid'], linecolor=tc['bg_grid'],
+                                     tickfont=dict(color=tc['plotly_text'], size=11)),
                 ),
-                paper_bgcolor='#0f1117',
-                plot_bgcolor='#0f1117',
-                font=dict(family='Inter', color='white'),
-                legend=dict(bgcolor='rgba(15,17,23,0.8)', font=dict(color='white', size=11)),
+                paper_bgcolor=tc['plotly_paper'],
+                plot_bgcolor=tc['plotly_bg'],
+                font=dict(family='Inter', color=tc['plotly_text']),
+                legend=dict(bgcolor='rgba(15,17,23,0.8)' if st.session_state.theme == 'dark' else 'rgba(250,246,238,0.8)', font=dict(color=tc['plotly_text'], size=11)),
                 height=380,
                 title=dict(text=f"{corr_a} vs {corr_b} — Normalized Risk DNA",
-                           font=dict(color='white', size=14)),
+                           font=dict(color=tc['plotly_text'], size=14)),
                 margin=dict(l=60, r=60, t=60, b=60),
             )
             # Use simple fill color hack since fillcolor above may be malformed
-            fig_dna.data[0].fillcolor = 'rgba(0,212,255,0.15)'
+            fig_dna.data[0].fillcolor = get_rgba_fill().get(tc['accent'], 'rgba(0,212,255,0.15)')
             if len(fig_dna.data) > 1:
-                fig_dna.data[1].fillcolor = 'rgba(255,107,107,0.15)'
+                fig_dna.data[1].fillcolor = get_rgba_fill().get(tc['red'], 'rgba(255,107,107,0.15)')
 
-            st.plotly_chart(fig_dna, use_container_width=True)
+            plot(fig_dna)
             st.caption("Axes normalized 0–1 across all corridors. High branching ratio = self-excitation. High CV = bursty arrivals. High night peak frac = night operations risk.")
 
             # Also show raw values table
@@ -1258,7 +1788,7 @@ elif page == "🤖 Dispatch Assistant":
                     for c in [corr_a, corr_b]
                 ])
                 dna_table.columns = ['Corridor', 'Branch. Ratio n', 'CV', 'Night Peak Frac', 'Dom Vehicle %', 'Med. Resol. (norm)']
-                st.dataframe(dna_table, use_container_width=True)
+                st.markdown(dna_table.to_html(index=False), unsafe_allow_html=True)
     else:
         st.info("DNA fingerprint requires Hawkes model output. Run `python run_all.py` first.")
 
@@ -1268,7 +1798,7 @@ elif page == "🤖 Dispatch Assistant":
 # ════════════════════════════════════════════════════════════════════════════════
 elif page == "📊 System Learning":
     st.markdown("## 📊 System Learning — PostEventCalibrator")
-    st.markdown("<div style='color:#6b7280; margin-bottom:20px;'>Closed-loop feedback system · MAE learning curve · Anomaly detection</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); margin-bottom:20px;'>Closed-loop feedback system · MAE learning curve · Anomaly detection</div>", unsafe_allow_html=True)
 
     if not calib_data:
         st.warning("Run `python run_all.py` to generate calibration results.")
@@ -1316,26 +1846,26 @@ elif page == "📊 System Learning":
         fig_learn.add_trace(go.Scatter(
             x=months_lbl, y=maes, mode='lines+markers',
             name='MAE (minutes)',
-            line=dict(color='#00d4ff', width=3),
-            marker=dict(size=10, color='#00d4ff',
-                        symbol='circle', line=dict(width=2, color='white')),
+            line=dict(color=tc['accent'], width=3),
+            marker=dict(size=10, color=tc['accent'],
+                        symbol='circle', line=dict(width=2, color=tc['plotly_paper'])),
             text=[f"{m:.0f} min" for m in maes],
-            textposition='top center', textfont=dict(color='white'),
+            textposition='top center', textfont=dict(color=tc['plotly_text']),
         ))
         fig_learn.add_trace(go.Bar(
             x=months_lbl, y=n_trains, name='Training set size',
-            marker_color='#3d4166', opacity=0.5, yaxis='y2',
+            marker_color=tc['grey'], opacity=0.5, yaxis='y2',
         ))
         fig_learn.update_layout(
-            **DARK_LAYOUT,
+            **get_theme_layout(),
             title="System learns as more events close — MAE should decrease",
-            xaxis=DARK_AXIS,
-            yaxis=dict(title="MAE (minutes)", gridcolor='#2d3150', zeroline=False),
+            xaxis=get_theme_axis(),
+            yaxis=dict(title="MAE (minutes)", gridcolor=tc['bg_grid'], zeroline=False),
             yaxis2=dict(title="Training events", overlaying='y', side='right',
-                        gridcolor='rgba(0,0,0,0)', color='#6b7280'),
-            legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color='white')),
+                        gridcolor='rgba(0,0,0,0)', color=tc['text_sidebar_muted']),
+            legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color=tc['plotly_text'])),
         )
-        st.plotly_chart(fig_learn, use_container_width=True)
+        plot(fig_learn)
 
         # ── Monthly detail table ───────────────────────────────────────────────
         st.markdown('<div class="section-header"><h3>📋 Monthly Validation Detail</h3></div>', unsafe_allow_html=True)
@@ -1350,39 +1880,39 @@ elif page == "📊 System Learning":
                 'Anomalous': v['n_anomalous'],
                 'Anomalous Rate': f"{v['anomalous_rate']:.1%}",
             })
-        st.dataframe(pd.DataFrame(table_rows), use_container_width=True, hide_index=True)
+        st.markdown(pd.DataFrame(table_rows).to_html(index=False), unsafe_allow_html=True)
 
         # ── System explanation ─────────────────────────────────────────────────
         st.divider()
         st.markdown('<div class="section-header"><h3>🔄 How the Closed Loop Works</h3></div>', unsafe_allow_html=True)
         st.markdown("""
-        <div style='background:#1a1d2e; border:1px solid #2d3150; border-radius:12px; padding:20px; margin:10px 0;'>
-          <div style='display:flex; gap:40px; flex-wrap:wrap;'>
-            <div style='flex:1; min-width:160px; text-align:center;'>
-              <div style='font-size:2rem;'>📡</div>
-              <div style='color:#00d4ff; font-weight:600; margin:8px 0 4px;'>Event Arrives</div>
-              <div style='color:#9ca3af; font-size:0.85rem;'>ResourceRAG predicts resolution time</div>
+        <div style='background: var(--card-bg-start); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; margin: 10px 0;'>
+          <div style='display: flex; gap: 40px; flex-wrap: wrap;'>
+            <div style='flex: 1; min-width: 160px; text-align: center;'>
+              <div style='font-size: 2rem;'>📡</div>
+              <div style='color: var(--accent); font-weight: 600; margin: 8px 0 4px;'>Event Arrives</div>
+              <div style='color: var(--text-sidebar-muted); font-size: 0.85rem;'>ResourceRAG predicts resolution time</div>
             </div>
-            <div style='color:#4b5563; font-size:2rem; display:flex; align-items:center;'>→</div>
-            <div style='flex:1; min-width:160px; text-align:center;'>
-              <div style='font-size:2rem;'>🔧</div>
-              <div style='color:#ffd93d; font-weight:600; margin:8px 0 4px;'>Event Resolves</div>
-              <div style='color:#9ca3af; font-size:0.85rem;'>Actual time recorded in system</div>
+            <div style='color: var(--grey); font-size: 2rem; display: flex; align-items: center;'>→</div>
+            <div style='flex: 1; min-width: 160px; text-align: center;'>
+              <div style='font-size: 2rem;'>🔧</div>
+              <div style='color: var(--yellow); font-weight: 600; margin: 8px 0 4px;'>Event Resolves</div>
+              <div style='color: var(--text-sidebar-muted); font-size: 0.85rem;'>Actual time recorded in system</div>
             </div>
-            <div style='color:#4b5563; font-size:2rem; display:flex; align-items:center;'>→</div>
-            <div style='flex:1; min-width:160px; text-align:center;'>
-              <div style='font-size:2rem;'>⚖️</div>
-              <div style='color:#a855f7; font-weight:600; margin:8px 0 4px;'>Delta Computed</div>
-              <div style='color:#9ca3af; font-size:0.85rem;'>Actual vs predicted → error logged</div>
+            <div style='color: var(--grey); font-size: 2rem; display: flex; align-items: center;'>→</div>
+            <div style='flex: 1; min-width: 160px; text-align: center;'>
+              <div style='font-size: 2rem;'>⚖️</div>
+              <div style='color: var(--purple); font-weight: 600; margin: 8px 0 4px;'>Delta Computed</div>
+              <div style='color: var(--text-sidebar-muted); font-size: 0.85rem;'>Actual vs predicted → error logged</div>
             </div>
-            <div style='color:#4b5563; font-size:2rem; display:flex; align-items:center;'>→</div>
-            <div style='flex:1; min-width:160px; text-align:center;'>
-              <div style='font-size:2rem;'>🔁</div>
-              <div style='color:#10b981; font-weight:600; margin:8px 0 4px;'>Index Rebuilt</div>
-              <div style='color:#9ca3af; font-size:0.85rem;'>New event added to NN index weekly</div>
+            <div style='color: var(--grey); font-size: 2rem; display: flex; align-items: center;'>→</div>
+            <div style='flex: 1; min-width: 160px; text-align: center;'>
+              <div style='font-size: 2rem;'>🔁</div>
+              <div style='color: var(--green); font-weight: 600; margin: 8px 0 4px;'>Index Rebuilt</div>
+              <div style='color: var(--text-sidebar-muted); font-size: 0.85rem;'>New event added to NN index weekly</div>
             </div>
           </div>
-          <div style='margin-top:16px; padding-top:12px; border-top:1px solid #2d3150; color:#6b7280; font-size:0.82rem;'>
+          <div style='margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--card-border); color: var(--text-sidebar-muted); font-size: 0.82rem;'>
             Anomalous events (actual > 2× predicted) are flagged as "hard cases" and weighted higher in future 
             retrieval — making the system progressively better at rare, complex events.
           </div>
@@ -1393,7 +1923,7 @@ elif page == "📊 System Learning":
         st.markdown('<div class="section-header"><h3>🔍 Anomaly Replay — Hardest Cases the System Got Wrong</h3></div>',
                     unsafe_allow_html=True)
         st.markdown(
-            "<div style='color:#6b7280; font-size:0.85rem; margin-bottom:12px;'>"
+            "<div style='color:var(--text-sidebar-muted); font-size:0.85rem; margin-bottom:12px;'>"
             "These are events where ATLAS under-predicted resolution time by more than 2×. "
             "They expose the system's blind spots — and each one improves future retrieval "
             "by becoming a higher-weight training example."
@@ -1426,7 +1956,7 @@ elif page == "📊 System Learning":
 
             case = all_anom_cases[selected_idx]
             ratio = case['ratio']
-            ratio_color = '#ff6b6b' if ratio > 4 else '#ffd93d' if ratio > 2.5 else '#f97316'
+            ratio_color = tc['red'] if ratio > 4 else tc['yellow'] if ratio > 2.5 else tc['orange']
 
             # Why-the-model-failed diagnosis
             hour = case['hour']
@@ -1445,49 +1975,49 @@ elif page == "📊 System Learning":
                 diagnosis.append("ℹ️ Moderate anomaly — training set for this corridor/cause may have been small at validation time")
 
             st.markdown(f"""
-            <div style='background:#1a0a0e; border:1px solid #ff6b6b33;
+            <div style='background: var(--badge-high-bg); border:1px solid var(--badge-high-border);
                         border-left:4px solid {ratio_color}; border-radius:12px;
                         padding:20px 24px; margin:12px 0;'>
               <div style='display:flex; gap:24px; flex-wrap:wrap; margin-bottom:16px;'>
                 <div>
-                  <div style='color:#9ca3af; font-size:0.75rem;'>MONTH</div>
-                  <div style='color:white; font-weight:700;'>{MONTH_LBL.get(case['month'], str(case['month']))}</div>
+                  <div style='color: var(--text-sidebar-muted); font-size:0.75rem;'>MONTH</div>
+                  <div style='color: var(--text-main); font-weight:700;'>{MONTH_LBL.get(case['month'], str(case['month']))}</div>
                 </div>
                 <div>
-                  <div style='color:#9ca3af; font-size:0.75rem;'>CORRIDOR</div>
-                  <div style='color:white; font-weight:700;'>{case['corridor']}</div>
+                  <div style='color: var(--text-sidebar-muted); font-size:0.75rem;'>CORRIDOR</div>
+                  <div style='color: var(--text-main); font-weight:700;'>{case['corridor']}</div>
                 </div>
                 <div>
-                  <div style='color:#9ca3af; font-size:0.75rem;'>CAUSE</div>
-                  <div style='color:white; font-weight:700;'>{cause_clean.replace('_',' ').title()}</div>
+                  <div style='color: var(--text-sidebar-muted); font-size:0.75rem;'>CAUSE</div>
+                  <div style='color: var(--text-main); font-weight:700;'>{cause_clean.replace('_',' ').title()}</div>
                 </div>
                 <div>
-                  <div style='color:#9ca3af; font-size:0.75rem;'>TIME</div>
-                  <div style='color:white; font-weight:700;'>{hour:02d}:00 IST ({time_ctx})</div>
+                  <div style='color: var(--text-sidebar-muted); font-size:0.75rem;'>TIME</div>
+                  <div style='color: var(--text-main); font-weight:700;'>{hour:02d}:00 IST ({time_ctx})</div>
                 </div>
               </div>
               <div style='display:flex; gap:32px; margin-bottom:16px;'>
                 <div style='text-align:center;'>
-                  <div style='color:#9ca3af; font-size:0.75rem;'>PREDICTED</div>
-                  <div style='color:#10b981; font-size:1.4rem; font-weight:700;'>{case['predicted_mins']:.0f} min</div>
+                  <div style='color: var(--text-sidebar-muted); font-size:0.75rem;'>PREDICTED</div>
+                  <div style='color:{tc['green']}; font-size:1.4rem; font-weight:700;'>{case['predicted_mins']:.0f} min</div>
                 </div>
-                <div style='color:#4b5563; font-size:1.4rem; display:flex; align-items:center;'>→</div>
+                <div style='color: var(--text-sidebar-muted); font-size:1.4rem; display:flex; align-items:center;'>→</div>
                 <div style='text-align:center;'>
-                  <div style='color:#9ca3af; font-size:0.75rem;'>ACTUAL</div>
+                  <div style='color: var(--text-sidebar-muted); font-size:0.75rem;'>ACTUAL</div>
                   <div style='color:{ratio_color}; font-size:1.4rem; font-weight:700;'>{case['actual_mins']:.0f} min</div>
                 </div>
                 <div style='text-align:center;'>
-                  <div style='color:#9ca3af; font-size:0.75rem;'>RATIO</div>
+                  <div style='color: var(--text-sidebar-muted); font-size:0.75rem;'>RATIO</div>
                   <div style='color:{ratio_color}; font-size:1.4rem; font-weight:700;'>{ratio:.1f}×</div>
                 </div>
                 <div style='text-align:center;'>
-                  <div style='color:#9ca3af; font-size:0.75rem;'>ERROR</div>
-                  <div style='color:white; font-size:1.4rem; font-weight:700;'>{case['error_mins']:.0f} min</div>
+                  <div style='color: var(--text-sidebar-muted); font-size:0.75rem;'>ERROR</div>
+                  <div style='color: var(--text-main); font-size:1.4rem; font-weight:700;'>{case['error_mins']:.0f} min</div>
                 </div>
               </div>
-              {'<div style="color:#9ca3af; font-size:0.85rem; font-style:italic; margin-bottom:12px; padding:8px; background:#0a0d1a; border-radius:6px;">"' + case['description'] + '"</div>' if case['description'] and case['description'] != 'nan' else ''}
-              <div style='border-top:1px solid #2d3150; padding-top:12px;'>
-                <div style='color:#ffd93d; font-size:0.8rem; font-weight:600; margin-bottom:8px;'>WHY THE MODEL MISSED THIS:</div>
+              {'<div style="color: var(--text-sidebar-muted); font-size:0.85rem; font-style:italic; margin-bottom:12px; padding:8px; background:' + tc['bg_sidebar'] + '; border:1px solid ' + tc['card_border'] + '; border-radius:6px;">"' + case['description'] + '"</div>' if case['description'] and case['description'] != 'nan' else ''}
+              <div style='border-top:1px solid var(--card-border); padding-top:12px;'>
+                <div style='color:{tc['yellow']}; font-size:0.8rem; font-weight:600; margin-bottom:8px;'>WHY THE MODEL MISSED THIS:</div>
             """, unsafe_allow_html=True)
             for d in diagnosis:
                 st.markdown(d)
@@ -1505,36 +2035,35 @@ elif page == "📊 System Learning":
 # ════════════════════════════════════════════════════════════════════════════════
 elif page == "📉 Risk Extremes":
     st.markdown("## 📉 Extreme Value Theory — Fat-Tail Risk Showcase")
-    st.markdown("<div style='color:#6b7280; margin-bottom:20px;'>Generalized Pareto Distribution · Return Period Planning · Why standard averages are dangerous</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); margin-bottom:20px;'>Generalized Pareto Distribution · Return Period Planning · Why standard averages are dangerous</div>", unsafe_allow_html=True)
 
     if not evt_data:
         st.warning("Run `python run_all.py` to generate EVT results.")
     else:
         st.markdown("""
-        <div style='background:linear-gradient(135deg,#1a0a2e,#1a1d2e); border:1px solid #7c3aed44;
-                    border-left:4px solid #a855f7; border-radius:12px; padding:20px 24px; margin-bottom:20px;'>
-          <div style='color:#a855f7; font-weight:700; font-size:1.1rem; margin-bottom:8px;'>⚠️ Why Averages Fail for Chronic Events</div>
-          <div style='color:#e5e7eb; font-size:0.95rem; line-height:1.6;'>
+        <div class='alert-card'>
+          <h4>⚠️ Why Averages Fail for Chronic Events</h4>
+          <p>
             A pothole's <b>median</b> resolution is ~9 days — but its <b>30-day worst-case</b> is 123 days.
             Standard planning using averages leaves a <b>13.7× gap</b> in resource allocation.
             ATLAS uses Extreme Value Theory (GPD fit) to size buffers for the tail, not the middle.
-          </div>
+          </p>
         </div>
         """, unsafe_allow_html=True)
 
         groups = [g for g, r in evt_data.items() if 'xi' in r]
         cols = st.columns(len(groups))
-        tail_badge = {'heavy': ('🔴 HEAVY TAIL', '#ff6b6b'), 'exponential': ('🟡 EXP TAIL', '#ffd93d'), 'bounded': ('🟢 BOUNDED', '#10b981')}
+        tail_badge = {'heavy': ('🔴 HEAVY TAIL', tc['red']), 'exponential': ('🟡 EXP TAIL', tc['yellow']), 'bounded': ('🟢 BOUNDED', tc['green'])}
         for col, group in zip(cols, groups):
             res = evt_data[group]
-            badge_text, badge_col = tail_badge.get(res.get('tail_type', 'bounded'), ('—', '#9ca3af'))
+            badge_text, badge_col = tail_badge.get(res.get('tail_type', 'bounded'), ('—', tc['grey']))
             worst30 = res.get('return_30d_days', 0)
             median_days = res.get('data_summary', {}).get('median_days', 1)
             gap = worst30 / median_days if median_days > 0 else 1
             col.markdown(f"""
             <div class='metric-card'>
               <p style='color:{badge_col}; font-weight:700; font-size:0.8rem;'>{badge_text}</p>
-              <p style='color:#9ca3af; margin:0;'>{group.upper()}</p>
+              <p style='color:var(--text-sidebar-muted); margin:0;'>{group.upper()}</p>
               <h2 style='color:{badge_col};'>ξ = {res['xi']:.3f}</h2>
               <p>Median: <b>{median_days:.0f} days</b></p>
               <p>30-day worst: <b style='color:{badge_col};'>{worst30:.0f} days</b></p>
@@ -1547,7 +2076,7 @@ elif page == "📉 Risk Extremes":
 
         periods = np.logspace(0, 2.3, 80)
         fig_fat = go.Figure()
-        palette = {'road_surface': '#ff6b6b', 'drainage': '#00d4ff', 'construction': '#ffd93d', 'vegetation': '#a855f7'}
+        palette = {'road_surface': tc['red'], 'drainage': tc['accent'], 'construction': tc['yellow'], 'vegetation': tc['purple']}
         for group, res in evt_data.items():
             if 'xi' not in res:
                 continue
@@ -1562,17 +2091,17 @@ elif page == "📉 Risk Extremes":
                 else:
                     lev = u + (sigma / xi) * ((rate / p) ** xi - 1)
                 levels.append(max(lev, u) / 1440)
-            col = palette.get(group, '#9ca3af')
+            col = palette.get(group, tc['grey'])
             fig_fat.add_trace(go.Scatter(x=periods, y=levels, name=group,
                                           line=dict(color=col, width=3)))
-        fig_fat.add_vline(x=30, line_dash='dash', line_color='#ff6b6b55',
+        fig_fat.add_vline(x=30, line_dash='dash', line_color=tc['red'],
                            annotation_text='30-day planning horizon')
-        fig_fat.update_layout(**DARK_LAYOUT, height=420,
+        fig_fat.update_layout(**get_theme_layout(), height=420,
                                title="Expected worst-case duration vs. return period — steeper = more dangerous tail",
-                               xaxis=dict(type='log', title='Return period (days)', gridcolor='#2d3150', zeroline=False),
-                               yaxis=dict(title='Worst-case duration (days)', gridcolor='#2d3150', zeroline=False),
-                               legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color='white')))
-        st.plotly_chart(fig_fat, use_container_width=True)
+                               xaxis=dict(type='log', title='Return period (days)', range=[0, np.log10(250)], dtick=1, gridcolor=tc['bg_grid'], zeroline=False),
+                               yaxis=dict(title='Worst-case duration (days)', gridcolor=tc['bg_grid'], zeroline=False),
+                               legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color=tc['plotly_text'])))
+        plot(fig_fat)
         st.caption("ξ > 0 (vegetation/tree_fall) = heavy tail = unbounded worst case. ξ < 0 (road_surface/drainage) = bounded but still far above median.")
 
         st.markdown('<div class="section-header"><h3>📋 Resource Buffer Recommendations (EVT-Derived)</h3></div>', unsafe_allow_html=True)
@@ -1591,7 +2120,7 @@ elif page == "📉 Risk Extremes":
                 '30-day Worst (days)': f"{worst_30:.0f}",
                 'Buffer Required': f"+{buffer_pct}%",
             })
-        st.dataframe(pd.DataFrame(table_rows), use_container_width=True, hide_index=True)
+        st.markdown(pd.DataFrame(table_rows).to_html(index=False), unsafe_allow_html=True)
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -1599,7 +2128,7 @@ elif page == "📉 Risk Extremes":
 # ════════════════════════════════════════════════════════════════════════════════
 elif page == "🎯 Event Simulator":
     st.markdown("## 🎯 Live Event Simulator — Red Team Demo")
-    st.markdown("<div style='color:#6b7280; margin-bottom:20px;'>Judges steer, ATLAS answers in real-time. IPL final tomorrow? What's the cascade risk?</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); margin-bottom:20px;'>Judges steer, ATLAS answers in real-time. IPL final tomorrow? What's the cascade risk?</div>", unsafe_allow_html=True)
 
     from src.m8_event_simulator import simulate_event, EVENT_TYPE_PARAMS, VENUE_CORRIDORS, generate_vms_text
 
@@ -1642,9 +2171,9 @@ elif page == "🎯 Event Simulator":
         st.divider()
         st.markdown('<div class="section-header"><h3>📊 ATLAS Impact Assessment</h3></div>', unsafe_allow_html=True)
 
-        intensity_colors = {'CRITICAL':'#ff6b6b','HIGH':'#ffd93d','MEDIUM':'#f97316','LOW':'#10b981'}
-        ic = intensity_colors.get(result.peak_congestion_intensity, '#9ca3af')
-        cc = intensity_colors.get(result.cascade_risk, '#9ca3af')
+        intensity_colors = {'CRITICAL': tc['red'], 'HIGH': tc['yellow'], 'MEDIUM': tc['orange'], 'LOW': tc['green']}
+        ic = intensity_colors.get(result.peak_congestion_intensity, tc['grey'])
+        cc = intensity_colors.get(result.cascade_risk, tc['grey'])
 
         k1,k2,k3,k4,k5 = st.columns(5)
         k1.markdown(f"<div class='metric-card'><p>Peak Intensity</p><h2 style='color:{ic};'>{result.peak_congestion_intensity}</h2></div>", unsafe_allow_html=True)
@@ -1654,9 +2183,9 @@ elif page == "🎯 Event Simulator":
         k5.markdown(f"<div class='metric-card'><p>Cascade Risk</p><h2 style='color:{cc};'>{result.cascade_risk}</h2></div>", unsafe_allow_html=True)
 
         tl1,tl2,tl3 = st.columns(3)
-        tl1.markdown(f"<div class='metric-card' style='border-color:#ffd93d44;'><p style='color:#ffd93d;'>📢 Pre-Event Window</p><h2 style='font-size:1.3rem;'>{result.pre_event_window}</h2><p>Deploy officers & barricades</p></div>", unsafe_allow_html=True)
+        tl1.markdown(f"<div class='metric-card' style='border-color: var(--badge-medium-border);'><p style='color: var(--badge-medium-color);'>📢 Pre-Event Window</p><h2 style='font-size:1.3rem;'>{result.pre_event_window}</h2><p>Deploy officers & barricades</p></div>", unsafe_allow_html=True)
         tl2.markdown(f"<div class='metric-card' style='border-color:{ic}44;'><p style='color:{ic};'>🔴 Peak Congestion</p><h2 style='font-size:1.3rem;'>{result.peak_window}</h2><p>Activate diversion routes</p></div>", unsafe_allow_html=True)
-        tl3.markdown(f"<div class='metric-card' style='border-color:#10b98144;'><p style='color:#10b981;'>✅ Wind-down</p><h2 style='font-size:1.3rem;'>{result.post_event_window}</h2><p>Staged officer release</p></div>", unsafe_allow_html=True)
+        tl3.markdown(f"<div class='metric-card' style='border-color: var(--badge-ok-border);'><p style='color: var(--badge-ok-color);'>✅ Wind-down</p><h2 style='font-size:1.3rem;'>{result.post_event_window}</h2><p>Staged officer release</p></div>", unsafe_allow_html=True)
 
         st.markdown('<div class="section-header"><h3>📈 Corridor Surge Impact</h3></div>', unsafe_allow_html=True)
         corr_names = result.affected_corridors
@@ -1664,23 +2193,24 @@ elif page == "🎯 Event Simulator":
         base_rates = [get_base_rate(c, hawkes, is_night=is_night) for c in corr_names]
         surged_rates = [b * result.surge_multiplier for b in base_rates]
         fig_surge = go.Figure()
-        fig_surge.add_trace(go.Bar(name='Baseline rate', x=corr_names, y=base_rates, marker_color='#3d4166'))
+        fig_surge.add_trace(go.Bar(name='Baseline rate', x=corr_names, y=base_rates, marker_color=tc['grey']))
         fig_surge.add_trace(go.Bar(name=f'During event ({result.surge_multiplier:.1f}×)', x=corr_names, y=surged_rates, marker_color=ic))
-        fig_surge.update_layout(**DARK_LAYOUT, barmode='group',
-                                 xaxis=DARK_AXIS,
-                                 yaxis=dict(title='Events/hour', gridcolor='#2d3150', zeroline=False),
-                                 legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color='white', size=10)))
-        st.plotly_chart(fig_surge, use_container_width=True)
+        fig_surge.update_layout(**get_theme_layout(), barmode='group',
+                                 xaxis=get_theme_axis(),
+                                 yaxis=dict(title='Events/hour', gridcolor=tc['bg_grid'], zeroline=False),
+                                 legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(color=tc['plotly_text'], size=10)))
+        plot(fig_surge)
 
         col_h, col_d = st.columns(2)
         with col_h:
             if result.hawkes_alert:
                 st.markdown(f"""
-                <div style='background:#2d1515; border:1px solid #ff6b6b44; border-left:4px solid #ff6b6b;
+                <div style='background: var(--badge-high-bg); border: 1px solid var(--badge-high-border); border-left:4px solid var(--badge-high-color);
                             border-radius:8px; padding:14px;'>
-                  <b style='color:#ff6b6b;'>⚡ Hawkes Cascade Alert</b>
-                  <p style='color:#e5e7eb; margin:6px 0 0; font-size:0.9rem;'>{result.hawkes_alert}</p>
+                  <b style='color: var(--badge-high-color);'>⚡ Hawkes Cascade Alert</b>
+                  <p style='color: var(--text-main); margin:6px 0 0; font-size:0.9rem;'>{result.hawkes_alert}</p>
                 </div>""", unsafe_allow_html=True)
+
             if result.road_closure_zones:
                 st.markdown("**🚧 Road Closure Zones:**")
                 for z in result.road_closure_zones:
@@ -1691,12 +2221,12 @@ elif page == "🎯 Event Simulator":
                 st.markdown(f"- {d}")
             st.markdown("**📝 Policy Notes:**")
             for note in result.policy_notes[:2]:
-                st.markdown(f"<small style='color:#9ca3af;'>• {note[:130]}{'...' if len(note)>130 else ''}</small>", unsafe_allow_html=True)
+                st.markdown(f"<small style='color:var(--text-sidebar-muted);'>• {note[:130]}{'...' if len(note)>130 else ''}</small>", unsafe_allow_html=True)
 
         # ── VMS Panel ────────────────────────────────────────────────────────────
         st.divider()
         st.markdown('<div class="section-header"><h3>🚦 VMS Broadcast — Variable Message Signs</h3></div>', unsafe_allow_html=True)
-        st.markdown("<div style='color:#6b7280; font-size:0.85rem; margin-bottom:12px;'>Simulated roadside VMS messages for affected corridors. Broadcast to highway digital signs at event start.</div>", unsafe_allow_html=True)
+        st.markdown("<div style='color:var(--text-sidebar-muted); font-size:0.85rem; margin-bottom:12px;'>Simulated roadside VMS messages for affected corridors. Broadcast to highway digital signs at event start.</div>", unsafe_allow_html=True)
 
         intensity_label = result.peak_congestion_intensity
         diversion = (result.diversion_routes[0] if result.diversion_routes else 'ALT ROUTE')
@@ -1736,7 +2266,7 @@ elif page == "🎯 Event Simulator":
 # ════════════════════════════════════════════════════════════════════════════════
 elif page == "💰 Impact Calculator":
     st.markdown("## 💰 Economic & Carbon Impact Calculator")
-    st.markdown("<div style='color:#6b7280; margin-bottom:20px;'>Translate resolution-time improvements into rupees saved, fuel conserved, and CO₂ avoided — for government and policy audiences.</div>", unsafe_allow_html=True)
+    st.markdown("<div style='color:var(--text-sidebar-muted); margin-bottom:20px;'>Translate resolution-time improvements into rupees saved, fuel conserved, and CO₂ avoided — for government and policy audiences.</div>", unsafe_allow_html=True)
 
     st.markdown('<div class="section-header"><h3>⚙️ Assumptions (Editable)</h3></div>', unsafe_allow_html=True)
     with st.expander("Click to view / edit economic assumptions", expanded=False):
@@ -1780,10 +2310,10 @@ elif page == "💰 Impact Calculator":
 
     st.markdown('<div class="section-header"><h3>💡 ATLAS Economic Impact (Clearance Time Savings)</h3></div>', unsafe_allow_html=True)
     r1,r2,r3,r4 = st.columns(4)
-    r1.markdown(f"<div class='metric-card'><p>Clearance Time Saved / Event</p><h2 style='color:#10b981;'>{mins_saved:.0f} min</h2><p>Pre-positioning (FHWA 2010)</p></div>", unsafe_allow_html=True)
-    r2.markdown(f"<div class='metric-card'><p>Economic Value / Event</p><h2 style='color:#00d4ff;'>₹{total_per_event:,.0f}</h2><p>Fuel + commuter time</p></div>", unsafe_allow_html=True)
-    r3.markdown(f"<div class='metric-card'><p>Annual City Savings</p><h2 style='color:#ffd93d;'>₹{total_per_year/1e7:.1f} Cr</h2><p>{events_per_day} events/day × 365</p></div>", unsafe_allow_html=True)
-    r4.markdown(f"<div class='metric-card'><p>CO₂ Avoided / Year</p><h2 style='color:#a855f7;'>{co2_per_year/1000:.0f} tonnes</h2><p>≈ {co2_per_year/1000/21:.0f} cars off road/yr</p></div>", unsafe_allow_html=True)
+    r1.markdown(f"<div class='metric-card'><p>Clearance Time Saved / Event</p><h2 style='color:{tc['green']};'>{mins_saved:.0f} min</h2><p>Pre-positioning (FHWA 2010)</p></div>", unsafe_allow_html=True)
+    r2.markdown(f"<div class='metric-card'><p>Economic Value / Event</p><h2 style='color:{tc['accent']};'>₹{total_per_event:,.0f}</h2><p>Fuel + commuter time</p></div>", unsafe_allow_html=True)
+    r3.markdown(f"<div class='metric-card'><p>Annual City Savings</p><h2 style='color:{tc['yellow']};'>₹{total_per_year/1e7:.1f} Cr</h2><p>{events_per_day} events/day × 365</p></div>", unsafe_allow_html=True)
+    r4.markdown(f"<div class='metric-card'><p>CO₂ Avoided / Year</p><h2 style='color:{tc['purple']};'>{co2_per_year/1000:.0f} tonnes</h2><p>≈ {co2_per_year/1000/21:.0f} cars off road/yr</p></div>", unsafe_allow_html=True)
 
     st.divider()
 
@@ -1793,14 +2323,14 @@ elif page == "💰 Impact Calculator":
         fig_wf = go.Figure(go.Bar(
             x=['Fuel Saved', 'Commuter Time', 'Total / Event'],
             y=[fuel_cost, time_value, total_per_event],
-            marker_color=['#10b981','#00d4ff','#ffd93d'],
+            marker_color=[tc['green'], tc['accent'], tc['yellow']],
             text=[f'₹{v:,.0f}' for v in [fuel_cost, time_value, total_per_event]],
-            textposition='outside', textfont=dict(color='white', size=13),
+            textposition='outside', textfont=dict(color=tc['plotly_text'], size=13),
         ))
-        fig_wf.update_layout(**DARK_LAYOUT, title='Economic value components per event',
-                              xaxis=DARK_AXIS,
-                              yaxis=dict(title='Value (₹)', gridcolor='#2d3150', zeroline=False))
-        st.plotly_chart(fig_wf, use_container_width=True)
+        fig_wf.update_layout(**get_theme_layout(), title='Economic value components per event',
+                              xaxis=get_theme_axis(),
+                              yaxis=dict(title='Value (₹)', gridcolor=tc['bg_grid'], zeroline=False))
+        plot(fig_wf)
 
     with col_chart2:
         st.markdown('<div class="section-header"><h3>📈 Savings Scale with Clearance Saved</h3></div>', unsafe_allow_html=True)
@@ -1811,48 +2341,47 @@ elif page == "💰 Impact Calculator":
             events_per_day * 365 / 1e7
             for m in mins_range
         ]
+        fill_color = get_rgba_fill().get(tc['accent'], 'rgba(0,212,255,0.15)')
         fig_scale = go.Figure(go.Scatter(x=mins_range, y=annual_savings,
-                                          fill='tozeroy', line=dict(color='#00d4ff', width=3),
-                                          fillcolor='rgba(0,212,255,0.1)'))
-        fig_scale.add_vline(x=mins_saved, line_dash='dash', line_color='#ffd93d',
+                                          fill='tozeroy', line=dict(color=tc['accent'], width=3),
+                                          fillcolor=fill_color))
+        fig_scale.add_vline(x=mins_saved, line_dash='dash', line_color=tc['yellow'],
                              annotation_text=f'ATLAS: {mins_saved:.0f} min')
-        fig_scale.update_layout(**DARK_LAYOUT, title='Annual savings (₹ Cr) vs clearance time saved (mins)',
-                                 xaxis=dict(title='Clearance Time Saved (minutes)', gridcolor='#2d3150', zeroline=False),
-                                 yaxis=dict(title='Annual Savings (₹ Crore)', gridcolor='#2d3150', zeroline=False))
-        st.plotly_chart(fig_scale, use_container_width=True)
+        fig_scale.update_layout(**get_theme_layout(), title='Annual savings (₹ Cr) vs clearance time saved (mins)',
+                                 xaxis=dict(title='Clearance Time Saved (minutes)', gridcolor=tc['bg_grid'], zeroline=False),
+                                 yaxis=dict(title='Annual Savings (₹ Crore)', gridcolor=tc['bg_grid'], zeroline=False))
+        plot(fig_scale)
 
     st.markdown('<div class="section-header"><h3>🏛 One-Slide Government Summary</h3></div>', unsafe_allow_html=True)
     st.markdown(f"""
-    <div style='background:linear-gradient(135deg,#0a1a10,#0d1f1a); border:1px solid #10b98144;
+    <div style='background: var(--badge-ok-bg); border:1px solid var(--badge-ok-border);
                 border-radius:12px; padding:24px; margin:10px 0;'>
-      <div style='color:#10b981; font-size:1.2rem; font-weight:700; margin-bottom:16px;'>ATLAS Impact Summary — Bengaluru Traffic Network</div>
+      <div style='color: var(--badge-ok-color); font-size:1.2rem; font-weight:700; margin-bottom:16px;'>ATLAS Impact Summary — Bengaluru Traffic Network</div>
       <div style='display:grid; grid-template-columns:1fr 1fr; gap:20px;'>
         <div>
-          <div style='color:#9ca3af; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;'>ANNUAL ECONOMIC VALUE</div>
-          <div style='color:white; font-size:2rem; font-weight:700;'>₹{total_per_year/1e7:.1f} Crore</div>
-          <div style='color:#6b7280; font-size:0.85rem;'>Fuel + commuter time · {events_per_day} events/day</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;'>ANNUAL ECONOMIC VALUE</div>
+          <div style='color: var(--badge-ok-color); font-size:2rem; font-weight:700;'>₹{total_per_year/1e7:.1f} Crore</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.85rem;'>Commuter time + Fuel saved · {events_per_day} events/day</div>
         </div>
         <div>
-          <div style='color:#9ca3af; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;'>CARBON IMPACT</div>
-          <div style='color:white; font-size:2rem; font-weight:700;'>{co2_per_year/1000:.0f} tonnes CO₂/yr</div>
-          <div style='color:#6b7280; font-size:0.85rem;'>≡ {co2_per_year/1000/21:.0f} passenger cars removed annually</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;'>CARBON IMPACT</div>
+          <div style='color: var(--badge-ok-color); font-size:2rem; font-weight:700;'>{co2_per_year/1000:.0f} tonnes CO₂/yr</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.85rem;'>≡ {co2_per_year/1000/21:.0f} passenger cars removed annually</div>
         </div>
         <div>
-          <div style='color:#9ca3af; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;'>RESOLUTION IMPROVEMENT</div>
-          <div style='color:white; font-size:2rem; font-weight:700;'>{mins_saved:.0f} min / event</div>
-          <div style='color:#6b7280; font-size:0.85rem;'>Clearance reduction via pre-positioning (FHWA)</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;'>RESOLUTION IMPROVEMENT</div>
+          <div style='color: var(--badge-ok-color); font-size:2rem; font-weight:700;'>{mins_saved:.0f} min / event</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.85rem;'>Clearance reduction via pre-positioning (FHWA)</div>
         </div>
         <div>
-          <div style='color:#9ca3af; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;'>SYSTEM LEARNING</div>
-          <div style='color:white; font-size:2rem; font-weight:700;'>16.3% MAE drop</div>
-          <div style='color:#6b7280; font-size:0.85rem;'>Confirmed over Nov 2023–Apr 2024 validation period</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;'>SYSTEM LEARNING</div>
+          <div style='color: var(--badge-ok-color); font-size:2rem; font-weight:700;'>16.3% MAE drop</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.85rem;'>Confirmed over Nov 2023–Apr 2024 validation period</div>
         </div>
       </div>
     </div>
     """, unsafe_allow_html=True)
 
-
-# ════════════════════════════════════════════════════════════════════════════════
 # SCREEN 9 — TOMORROW'S OPS BRIEF  (Pre-Event Alert)
 # ════════════════════════════════════════════════════════════════════════════════
 elif page == "📋 Ops Brief":
@@ -1861,7 +2390,7 @@ elif page == "📋 Ops Brief":
 
     st.markdown("## 📋 Tomorrow's Ops Brief — Auto Pre-Positioning Briefing")
     st.markdown(
-        "<div style='color:#6b7280; margin-bottom:20px;'>"
+        "<div style='color:var(--text-sidebar-muted); margin-bottom:20px;'>"
         "ATLAS auto-generates a shift-start ops brief 12 h before each event window. "
         "Every morning at 06:00 IST this screen tells officers exactly what the network needs — "
         "before a single call is placed."
@@ -1885,22 +2414,52 @@ elif page == "📋 Ops Brief":
         {"Run?": False, "Event": "City Marathon",     "Type": "sports_marathon",
          "Venue": "Kanteerava Stadium",      "Crowd": 15000, "Start":  6, "End": 10, "Day": "Sun"},
     ]
-    edited = st.data_editor(
-        pd.DataFrame(DEFAULT_SCHEDULE), use_container_width=True, hide_index=True,
-        column_config={
-            "Run?":  st.column_config.CheckboxColumn("Run?", default=True),
-            "Crowd": st.column_config.NumberColumn("Crowd", min_value=0, max_value=200000, step=5000),
-            "Start": st.column_config.NumberColumn("Start h", min_value=0, max_value=23),
-            "End":   st.column_config.NumberColumn("End h",   min_value=0, max_value=23),
-        },
-    )
+
+    if "ops_brief_schedule" not in st.session_state:
+        st.session_state.ops_brief_schedule = DEFAULT_SCHEDULE
+
+    # Render a clean HTML table that inherits our theme's CSS variables
+    sched_df = pd.DataFrame(st.session_state.ops_brief_schedule)
+    display_df = sched_df.copy()
+    display_df["Run?"] = display_df["Run?"].map({True: "✅ Yes", False: "❌ No"})
+    display_df.columns = ["Run?", "Event", "Type", "Venue", "Crowd", "Start Hour", "End Hour", "Day"]
+    st.markdown(display_df.to_html(index=False), unsafe_allow_html=True)
+
+    with st.expander("⚙️ Edit Event Schedule & Settings"):
+        updated_sched = []
+        for i, ev in enumerate(st.session_state.ops_brief_schedule):
+            st.markdown(f"##### 📅 {ev['Event']} ({ev['Venue']})")
+            c1, c2, c3, c4 = st.columns(4)
+            with c1:
+                run_val = st.checkbox("Include in Ops Brief", value=ev["Run?"], key=f"run_{i}")
+            with c2:
+                crowd_val = st.number_input("Crowd Size", value=int(ev["Crowd"]), step=5000, min_value=0, max_value=200000, key=f"crowd_{i}")
+            with c3:
+                start_val = st.number_input("Start Hour (24h)", value=int(ev["Start"]), min_value=0, max_value=23, key=f"start_{i}")
+            with c4:
+                end_val = st.number_input("End Hour (24h)", value=int(ev["End"]), min_value=0, max_value=23, key=f"end_{i}")
+            
+            updated_sched.append({
+                "Run?": run_val,
+                "Event": ev["Event"],
+                "Type": ev["Type"],
+                "Venue": ev["Venue"],
+                "Crowd": crowd_val,
+                "Start": start_val,
+                "End": end_val,
+                "Day": ev["Day"]
+            })
+        st.session_state.ops_brief_schedule = updated_sched
+
+    # Use the edited schedule
+    edited = pd.DataFrame(st.session_state.ops_brief_schedule)
     active_rows = edited[edited["Run?"]].to_dict("records")
     if not active_rows:
         st.info("Enable at least one event above to generate the brief.")
         st.stop()
 
     # ── Run M8 for each active event ─────────────────────────────────────────
-    ICOL = {"CRITICAL": "#ff6b6b", "HIGH": "#ffd93d", "MEDIUM": "#f97316", "LOW": "#10b981"}
+    ICOL = {"CRITICAL": tc['red'], "HIGH": tc['yellow'], "MEDIUM": tc['orange'], "LOW": tc['green']}
     IORD = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}
 
     sim_results = []
@@ -1928,10 +2487,10 @@ elif page == "📋 Ops Brief":
         ic = ICOL.get(r.peak_congestion_intensity, "#9ca3af")
         col.markdown(f"""
         <div class='metric-card' style='border-color:{ic}44; text-align:center;'>
-          <p style='color:#9ca3af; font-size:0.78rem; margin:0;'>{ev['Event']}</p>
+          <p style='color:var(--text-sidebar-muted); font-size:0.78rem; margin:0;'>{ev['Event']}</p>
           <h2 style='color:{ic}; font-size:1.4rem; margin:6px 0;'>{r.peak_congestion_intensity}</h2>
-          <p style='color:white; margin:0;'>{r.surge_multiplier:.1f}× surge</p>
-          <p style='color:#9ca3af; font-size:0.74rem; margin-top:4px;'>
+          <p style='color: var(--text-main); margin:0;'>{r.surge_multiplier:.1f}× surge</p>
+          <p style='color:var(--text-sidebar-muted); font-size:0.74rem; margin-top:4px;'>
             👮 {r.officers_required} officers<br>🚧 {r.barricades_required} barricades<br>
             ⏰ {r.pre_event_window}
           </p>
@@ -1961,11 +2520,11 @@ elif page == "📋 Ops Brief":
     ]
     if stress_rows:
         def _style_i(val):
-            c = {"CRITICAL":"#ff6b6b","HIGH":"#ffd93d","MEDIUM":"#f97316","LOW":"#10b981"}.get(val,"white")
+            c = {"CRITICAL": tc['red'], "HIGH": tc['yellow'], "MEDIUM": tc['orange'], "LOW": tc['green']}.get(val, tc['plotly_text'])
             return f"color:{c}; font-weight:600"
-        st.dataframe(
-            pd.DataFrame(stress_rows).style.map(_style_i, subset=["Intensity"]),
-            use_container_width=True, hide_index=True,
+        st.markdown(
+            pd.DataFrame(stress_rows).style.map(_style_i, subset=["Intensity"]).hide(axis="index").to_html(),
+            unsafe_allow_html=True,
         )
 
     # ── Deployment checklist ──────────────────────────────────────────────────
@@ -1978,14 +2537,14 @@ elif page == "📋 Ops Brief":
     dual_corrs = sum(1 for v in corridor_stress.values() if len(v["events"]) > 1)
 
     ck1, ck2, ck3 = st.columns(3)
-    ck1.markdown(f"<div class='metric-card'><p style='color:#9ca3af;'>Total Officers</p>"
-                 f"<h2 style='color:#00d4ff;'>{total_off}</h2><p>All active events</p></div>",
+    ck1.markdown(f"<div class='metric-card'><p style='color:var(--text-sidebar-muted);'>Total Officers</p>"
+                 f"<h2 style='color:{tc['accent']};'>{total_off}</h2><p>All active events</p></div>",
                  unsafe_allow_html=True)
-    ck2.markdown(f"<div class='metric-card'><p style='color:#9ca3af;'>Total Barricades</p>"
-                 f"<h2 style='color:#ffd93d;'>{total_bar}</h2><p>All active events</p></div>",
+    ck2.markdown(f"<div class='metric-card'><p style='color:var(--text-sidebar-muted);'>Total Barricades</p>"
+                 f"<h2 style='color:{tc['yellow']};'>{total_bar}</h2><p>All active events</p></div>",
                  unsafe_allow_html=True)
-    ck3.markdown(f"<div class='metric-card'><p style='color:#9ca3af;'>Corridors Stressed</p>"
-                 f"<h2 style='color:#ff6b6b;'>{len(corridor_stress)}</h2>"
+    ck3.markdown(f"<div class='metric-card'><p style='color:var(--text-sidebar-muted);'>Corridors Stressed</p>"
+                 f"<h2 style='color:{tc['red']};'>{len(corridor_stress)}</h2>"
                  f"<p>{dual_corrs} with multi-event overlap</p></div>",
                  unsafe_allow_html=True)
 
@@ -1995,14 +2554,14 @@ elif page == "📋 Ops Brief":
         ev = item["meta"]
         ic = ICOL.get(r.peak_congestion_intensity, "#9ca3af")
         st.markdown(
-            f"<div style='background:#1a1d2e; border:1px solid #2d3150; "
+            f"<div style='background: var(--card-bg-start); border: 1px solid var(--card-border); "
             f"border-left:4px solid {ic}; border-radius:8px; padding:12px 16px; margin:5px 0;'>"
             f"<b style='color:{ic};'>{ev['Event']}</b> "
-            f"<span style='color:#9ca3af; font-size:0.83rem;'>({ev['Venue']})</span><br>"
-            f"<span style='color:#e5e7eb;'>📢 Pre-deploy: <b>{r.pre_event_window}</b>&nbsp;|&nbsp;"
+            f"<span style='color:var(--text-sidebar-muted); font-size:0.83rem;'>({ev['Venue']})</span><br>"
+            f"<span style='color: var(--text-main);'>📢 Pre-deploy: <b>{r.pre_event_window}</b>&nbsp;|&nbsp;"
             f"🔴 Peak: <b>{r.peak_window}</b>&nbsp;|&nbsp;"
             f"✅ Wind-down: <b>{r.post_event_window}</b></span><br>"
-            f"<span style='color:#9ca3af; font-size:0.8rem;'>"
+            f"<span style='color:var(--text-sidebar-muted); font-size:0.8rem;'>"
             f"Corridors: {', '.join(r.affected_corridors[:3])}"
             f"{'…' if len(r.affected_corridors) > 3 else ''}</span></div>",
             unsafe_allow_html=True
@@ -2047,7 +2606,7 @@ elif page == "🧪 Stress Test":
 
     st.markdown("## 🧪 Dual-Event Corridor Stress Test")
     st.markdown(
-        "<div style='color:#6b7280; margin-bottom:20px;'>"
+        "<div style='color:var(--text-sidebar-muted); margin-bottom:20px;'>"
         "What happens when an IPL Final and a Rajyotsava parade run simultaneously? "
         "ATLAS compounds their surge multipliers on shared corridors — "
         "exposing the network's hidden breaking points that single-event planning misses."
@@ -2113,32 +2672,32 @@ elif page == "🧪 Stress Test":
                 st.error(f"Simulation error: {exc}")
                 st.stop()
 
-        ICOL = {"CRITICAL":"#ff6b6b","HIGH":"#ffd93d","MEDIUM":"#f97316","LOW":"#10b981"}
+        ICOL = {"CRITICAL": tc['red'], "HIGH": tc['yellow'], "MEDIUM": tc['orange'], "LOW": tc['green']}
         st.divider()
         st.markdown('<div class="section-header"><h3>📊 Individual Impact Assessments</h3></div>',
                     unsafe_allow_html=True)
 
         col_ea, col_eb = st.columns(2)
         for col, r, label, col_hex in [
-            (col_ea, r_a, "Event A", "#00d4ff"),
-            (col_eb, r_b, "Event B", "#ff6b6b"),
+            (col_ea, r_a, "Event A", tc['accent']),
+            (col_eb, r_b, "Event B", tc['red']),
         ]:
             ic = ICOL.get(r.peak_congestion_intensity, "#9ca3af")
             col.markdown(f"""
             <div class='metric-card' style='border-color:{col_hex}44;'>
               <p style='color:{col_hex}; font-weight:700; font-size:0.9rem;'>{label} — {r.event_type.replace('_',' ').title()}</p>
-              <p style='color:#9ca3af; font-size:0.82rem; margin:2px 0;'>{r.venue}</p>
+              <p style='color:var(--text-sidebar-muted); font-size:0.82rem; margin:2px 0;'>{r.venue}</p>
               <div style='display:flex; gap:18px; margin-top:10px; flex-wrap:wrap;'>
-                <div><div style='color:#9ca3af;font-size:0.75rem;'>INTENSITY</div>
+                <div><div style='color:var(--text-sidebar-muted);font-size:0.75rem;'>INTENSITY</div>
                      <div style='color:{ic};font-weight:700;font-size:1.1rem;'>{r.peak_congestion_intensity}</div></div>
-                <div><div style='color:#9ca3af;font-size:0.75rem;'>SURGE</div>
-                     <div style='color:white;font-weight:700;font-size:1.1rem;'>{r.surge_multiplier:.1f}×</div></div>
-                <div><div style='color:#9ca3af;font-size:0.75rem;'>OFFICERS</div>
-                     <div style='color:white;font-weight:700;font-size:1.1rem;'>{r.officers_required}</div></div>
-                <div><div style='color:#9ca3af;font-size:0.75rem;'>BARRICADES</div>
-                     <div style='color:white;font-weight:700;font-size:1.1rem;'>{r.barricades_required}</div></div>
+                <div><div style='color:var(--text-sidebar-muted);font-size:0.75rem;'>SURGE</div>
+                     <div style='color: var(--text-main);font-weight:700;font-size:1.1rem;'>{r.surge_multiplier:.1f}×</div></div>
+                <div><div style='color:var(--text-sidebar-muted);font-size:0.75rem;'>OFFICERS</div>
+                     <div style='color: var(--text-main);font-weight:700;font-size:1.1rem;'>{r.officers_required}</div></div>
+                <div><div style='color:var(--text-sidebar-muted);font-size:0.75rem;'>BARRICADES</div>
+                     <div style='color: var(--text-main);font-weight:700;font-size:1.1rem;'>{r.barricades_required}</div></div>
               </div>
-              <p style='color:#9ca3af; font-size:0.8rem; margin-top:8px;'>
+              <p style='color:var(--text-sidebar-muted); font-size:0.8rem; margin-top:8px;'>
                 Peak window: {r.peak_window}<br>
                 Corridors: {', '.join(r.affected_corridors[:3])}{'…' if len(r.affected_corridors)>3 else ''}
               </p>
@@ -2175,26 +2734,26 @@ elif page == "🧪 Stress Test":
         fig_st = go.Figure()
         fig_st.add_trace(go.Bar(name="Baseline",
                                 x=all_corrs, y=base_a,
-                                marker_color="#3d4166", opacity=0.55))
+                                marker_color=tc['grey'], opacity=0.55))
         fig_st.add_trace(go.Bar(name=f"Event A ({r_a.surge_multiplier:.1f}×)",
                                 x=all_corrs, y=surged_a,
-                                marker_color="#00d4ff", opacity=0.75))
+                                marker_color=tc['accent'], opacity=0.75))
         fig_st.add_trace(go.Bar(name=f"Event B ({r_b.surge_multiplier:.1f}×)",
                                 x=all_corrs, y=surged_b,
-                                marker_color="#f97316", opacity=0.75))
+                                marker_color=tc['orange'], opacity=0.75))
         fig_st.add_trace(go.Scatter(name="Combined peak",
                                     x=all_corrs, y=combined,
                                     mode="markers+lines",
-                                    marker=dict(size=10, color="#ff6b6b", symbol="diamond"),
-                                    line=dict(color="#ff6b6b", width=2, dash="dot")))
+                                    marker=dict(size=10, color=tc['red'], symbol="diamond"),
+                                    line=dict(color=tc['red'], width=2, dash="dot")))
         fig_st.update_layout(
-            **DARK_LAYOUT, barmode="overlay", height=420,
+            **get_theme_layout(), barmode="overlay", height=420,
             title="Corridor event rates — baseline vs each event vs combined peak",
-            xaxis=dict(gridcolor="#2d3150", zeroline=False),
-            yaxis=dict(title="Events / hour", gridcolor="#2d3150", zeroline=False),
-            legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="white", size=10)),
+            xaxis=dict(gridcolor=tc['bg_grid'], zeroline=False),
+            yaxis=dict(title="Events / hour", gridcolor=tc['bg_grid'], zeroline=False),
+            legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color=tc['plotly_text'], size=10)),
         )
-        st.plotly_chart(fig_st, use_container_width=True)
+        plot(fig_st)
         st.caption("🔴 diamond line = estimated combined peak rate on shared corridors. "
                    "🔵 Event A only · 🟠 Event B only · grey = baseline.")
 
@@ -2207,19 +2766,19 @@ elif page == "🧪 Stress Test":
         total_bar = r_a.barricades_required + r_b.barricades_required
         max_comb  = max(combined) if combined else 0
         rc1.markdown(f"<div class='metric-card'><p>Combined Officers</p>"
-                     f"<h2 style='color:#ff6b6b;'>{total_off}</h2>"
+                     f"<h2 style='color:{tc['red']};'>{total_off}</h2>"
                      f"<p>A:{r_a.officers_required} + B:{r_b.officers_required}</p></div>",
                      unsafe_allow_html=True)
         rc2.markdown(f"<div class='metric-card'><p>Combined Barricades</p>"
-                     f"<h2 style='color:#ffd93d;'>{total_bar}</h2>"
+                     f"<h2 style='color:{tc['yellow']};'>{total_bar}</h2>"
                      f"<p>A:{r_a.barricades_required} + B:{r_b.barricades_required}</p></div>",
                      unsafe_allow_html=True)
         rc3.markdown(f"<div class='metric-card'><p>Shared Corridors</p>"
-                     f"<h2 style='color:{'#ff6b6b' if shared else '#10b981'};'>{len(shared)}</h2>"
+                     f"<h2 style='color:{tc['red'] if shared else tc['green']};'>{len(shared)}</h2>"
                      f"<p>{'⚠️ Conflict zone' if shared else '✅ No overlap'}</p></div>",
                      unsafe_allow_html=True)
         rc4.markdown(f"<div class='metric-card'><p>Peak Combined Rate</p>"
-                     f"<h2 style='color:#a855f7;'>{max_comb:.1f}</h2>"
+                     f"<h2 style='color:{tc['purple']};'>{max_comb:.1f}</h2>"
                      f"<p>events/hr — hottest corridor</p></div>",
                      unsafe_allow_html=True)
 
@@ -2241,7 +2800,12 @@ elif page == "🔌 DAE Integration":
 
     st.markdown("## 🔌 DAE Integration Bridge — Two-Layer Traffic Intelligence Stack")
     st.markdown(
-        "<div style=\'color:#6b7280; margin-bottom:20px;\'>"        "ATLAS is the <b style=\'color:#00d4ff;\'>strategic brain</b> (hours to days). "        "DAE is the <b style=\'color:#a855f7;\'>tactical nervous system</b> (ms to minutes). "        "Together they form a complete stack from months-ahead risk modelling down to "        "sub-50ms signal control at each intersection."        "</div>", unsafe_allow_html=True
+        f"<div style='color: var(--text-sidebar-muted); margin-bottom:20px;'>"
+        f"ATLAS is the <b style='color:{tc['accent']};'>strategic brain</b> (hours to days). "
+        f"DAE is the <b style='color:{tc['purple']};'>tactical nervous system</b> (ms to minutes). "
+        f"Together they form a complete stack from months-ahead risk modelling down to "
+        f"sub-50ms signal control at each intersection."
+        f"</div>", unsafe_allow_html=True
     )
 
     # Pull REAL live data from ATLAS Hawkes model
@@ -2269,44 +2833,44 @@ elif page == "🔌 DAE Integration":
 
     # Architecture diagram
     st.markdown('<div class="section-header"><h3>System Architecture</h3></div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div style='background:#1a1d2e; border:1px solid #2d3150; border-radius:16px; padding:28px; margin:12px 0;'>
+    st.markdown(f"""
+    <div style='background: var(--card-bg-start); border: 1px solid var(--card-border); border-radius:16px; padding:28px; margin:12px 0;'>
       <div style='display:flex; align-items:center; gap:16px; margin-bottom:20px;'>
-        <div style='background:linear-gradient(135deg,#0a1628,#1a2d4a); border:2px solid #00d4ff44;
+        <div style='background:linear-gradient(135deg, var(--card-bg-start), var(--card-bg-end)); border:2px solid {tc['accent']}44;
                     border-radius:12px; padding:16px 20px; flex:1; text-align:center;'>
-          <div style='color:#00d4ff; font-size:1.2rem; font-weight:700; margin-bottom:4px;'>ATLAS</div>
-          <div style='color:#9ca3af; font-size:0.8rem;'>Strategic Layer</div>
-          <div style='color:#e5e7eb; font-size:0.85rem; margin-top:8px; line-height:1.5;'>
+          <div style='color:{tc['accent']}; font-size:1.2rem; font-weight:700; margin-bottom:4px;'>ATLAS</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.8rem;'>Strategic Layer</div>
+          <div style='color: var(--text-main); font-size:0.85rem; margin-top:8px; line-height:1.5;'>
             Hawkes forecasting | EVT risk | RAG dispatch<br><b>Timescale: hours to days</b>
           </div>
         </div>
-        <div style='color:#4b5563; font-size:2rem; text-align:center;'>&#8661;<br><span style='font-size:0.7rem;'>MQTT</span></div>
-        <div style='background:linear-gradient(135deg,#1a0a2e,#2d1a4a); border:2px solid #a855f744;
+        <div style='color: var(--text-sidebar-muted); font-size:2rem; text-align:center;'>&#8661;<br><span style='font-size:0.7rem;'>MQTT</span></div>
+        <div style='background:linear-gradient(135deg, var(--card-bg-start), var(--card-bg-end)); border:2px solid {tc['purple']}44;
                     border-radius:12px; padding:16px 20px; flex:1; text-align:center;'>
-          <div style='color:#a855f7; font-size:1.2rem; font-weight:700; margin-bottom:4px;'>DAE</div>
-          <div style='color:#9ca3af; font-size:0.8rem;'>Tactical Layer</div>
-          <div style='color:#e5e7eb; font-size:0.85rem; margin-top:8px; line-height:1.5;'>
+          <div style='color:{tc['purple']}; font-size:1.2rem; font-weight:700; margin-bottom:4px;'>DAE</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.8rem;'>Tactical Layer</div>
+          <div style='color: var(--text-main); font-size:0.85rem; margin-top:8px; line-height:1.5;'>
             LLM signal control | Emergency preemption | I2I coordination<br><b>Timescale: 42ms per decision</b>
           </div>
         </div>
       </div>
       <div style='display:flex; gap:16px;'>
-        <div style='flex:1; background:#0d1f0d; border:1px solid #10b98133; border-radius:10px; padding:14px 18px;'>
-          <div style='color:#10b981; font-weight:700; font-size:0.85rem; margin-bottom:6px;'>UPWARD — Edge triggers Cloud</div>
-          <div style='color:#9ca3af; font-size:0.8rem; line-height:1.6;'>
+        <div style='flex:1; background: var(--badge-ok-bg); border:1px solid var(--badge-ok-border); border-radius:10px; padding:14px 18px;'>
+          <div style='color: var(--badge-ok-color); font-weight:700; font-size:0.85rem; margin-bottom:6px;'>UPWARD — Edge triggers Cloud</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.8rem; line-height:1.6;'>
             DAE YOLOv8 detects anomaly at intersection<br>
             MQTT publish to atlas/events/detected<br>
             ATLAS M1 classifies → M3 Hawkes forecast → M6 dispatch<br>
-            <b>Result: 0 human reporting delay</b>
+            <b style='color: var(--badge-ok-color);'>Result: 0 human reporting delay</b>
           </div>
         </div>
-        <div style='flex:1; background:#1a0d0a; border:1px solid #f9731633; border-radius:10px; padding:14px 18px;'>
-          <div style='color:#f97316; font-weight:700; font-size:0.85rem; margin-bottom:6px;'>DOWNWARD — Cloud pre-excites Edge</div>
-          <div style='color:#9ca3af; font-size:0.8rem; line-height:1.6;'>
+        <div style='flex:1; background: var(--badge-medium-bg); border:1px solid var(--badge-medium-border); border-radius:10px; padding:14px 18px;'>
+          <div style='color: var(--badge-medium-color); font-weight:700; font-size:0.85rem; margin-bottom:6px;'>DOWNWARD — Cloud pre-excites Edge</div>
+          <div style='color: var(--text-sidebar-muted); font-size:0.8rem; line-height:1.6;'>
             ATLAS M8 forecasts event surge 30 min ahead<br>
             Pushes Pre-Excitation Policy to DAE nodes via MQTT<br>
             DAE switches to Egress Priority mode before surge hits camera<br>
-            <b>Result: Over-the-horizon signal adaptation</b>
+            <b style='color: var(--badge-medium-color);'>Result: Over-the-horizon signal adaptation</b>
           </div>
         </div>
       </div>
@@ -2334,48 +2898,48 @@ elif page == "🔌 DAE Integration":
         "DAE Chaos Toggle", "ATLAS Cause (Astram)", "EVT Group", "ATLAS Intensity", "Events in Dataset"
     ])
     def _style_inten(val):
-        c = {"CRITICAL":"#ff6b6b","HIGH":"#ffd93d","MEDIUM":"#f97316","LOW":"#10b981"}.get(val,"white")
+        c = {"CRITICAL": tc['red'], "HIGH": tc['yellow'], "MEDIUM": tc['orange'], "LOW": tc['green']}.get(val, tc['plotly_text'])
         return f"color:{c}; font-weight:600"
-    st.dataframe(map_df.style.map(_style_inten, subset=["ATLAS Intensity"]),
-                 use_container_width=True, hide_index=True)
+    st.markdown(map_df.style.map(_style_inten, subset=["ATLAS Intensity"]).hide(axis="index").to_html(),
+                 unsafe_allow_html=True)
 
     # Connection 2 — Live Hawkes Model output
     st.divider()
     st.markdown('<div class="section-header"><h3>Connection 2 — Live Hawkes Model → DAE Emergency Preemption</h3></div>',
                 unsafe_allow_html=True)
     st.markdown(
-        f"<div style='color:#6b7280; font-size:0.85rem; margin-bottom:10px;'>"
+        f"<div style='color:var(--text-sidebar-muted); font-size:0.85rem; margin-bottom:10px;'>"
         f"Real parameters from ATLAS M3 Hawkes fit on {_n_events} events on <b>{_top_corr}</b>. "
         f"Alert status computed live from model branching ratio."
         f"</div>", unsafe_allow_html=True
     )
 
     mc1, mc2, mc3, mc4 = st.columns(4)
-    _n_col = "#ff6b6b" if _n >= 0.25 else "#10b981"
-    _gof_col = "#10b981" if _gof_p > 0.05 else "#ffd93d"
+    _n_col = tc['red'] if _n >= 0.25 else tc['green']
+    _gof_col = tc['green'] if _gof_p > 0.05 else tc['yellow']
     mc1.markdown(f"<div class='metric-card'><p>Branching Ratio (n)</p>"
                  f"<h2 style='color:{_n_col};'>{_n:.3f}</h2>"
                  f"<p>{'SELF-EXCITING' if _n >= 0.25 else 'Near-Poisson'}</p></div>",
                  unsafe_allow_html=True)
     mc2.markdown(f"<div class='metric-card'><p>Excitation Decay</p>"
-                 f"<h2 style='color:#ffd93d;'>{_decay:.0f} min</h2>"
+                 f"<h2 style='color:{tc['yellow']};'>{_decay:.0f} min</h2>"
                  f"<p>After-shock window</p></div>", unsafe_allow_html=True)
     _nd_ratio = (_mu_night / _mu_day) if _mu_day > 0 else 0
     mc3.markdown(f"<div class='metric-card'><p>Night / Day Rate</p>"
-                 f"<h2 style='color:#a855f7;'>{_nd_ratio:.1f}x</h2>"
+                 f"<h2 style='color:{tc['purple']};'>{_nd_ratio:.1f}x</h2>"
                  f"<p>Night baseline elevation</p></div>", unsafe_allow_html=True)
     mc4.markdown(f"<div class='metric-card'><p>GoF p-value</p>"
                  f"<h2 style='color:{_gof_col};'>{_gof_p:.3f}</h2>"
                  f"<p>Compensator KS test</p></div>", unsafe_allow_html=True)
 
     col_h1, col_h2 = st.columns(2)
-    _alert_col = "#ff6b6b" if _n >= 0.25 else "#10b981"
+    _alert_col = tc['red'] if _n >= 0.25 else tc['green']
     with col_h1:
         st.markdown(f"""
         <div class='metric-card' style='border-color:{_alert_col}44;'>
           <p style='color:{_alert_col}; font-weight:700;'>ATLAS M3 Hawkes Alert — {_top_corr}</p>
-          <p style='color:#9ca3af; font-size:0.82rem;'>Live output from hawkes_results.json</p>
-          <div style='background:#0a0d1a; border-radius:8px; padding:10px; margin-top:8px;
+          <p style='color:var(--text-sidebar-muted); font-size:0.82rem;'>Live output from hawkes_results.json</p>
+          <div style='background:{tc['bg_sidebar']}; border:1px solid {tc['card_border']}; border-radius:8px; padding:10px; margin-top:8px;
                       font-family:monospace; font-size:0.78rem; color:{_alert_col};'>
             {{<br>
             &nbsp;&nbsp;"alert": "{_alert_level}",<br>
@@ -2392,13 +2956,13 @@ elif page == "🔌 DAE Integration":
         """, unsafe_allow_html=True)
     with col_h2:
         st.markdown(f"""
-        <div class='metric-card' style='border-color:#a855f744;'>
-          <p style='color:#a855f7; font-weight:700;'>DAE Master Agent Response (GREEN WAVE rule)</p>
-          <p style='color:#9ca3af; font-size:0.82rem;'>
+        <div class='metric-card' style='border-color:{tc['purple']}44;'>
+          <p style='color:{tc['purple']}; font-weight:700;'>DAE Master Agent Response (GREEN WAVE rule)</p>
+          <p style='color:var(--text-sidebar-muted); font-size:0.82rem;'>
             Triggered on MQTT topic: atlas/preexcite/{_mqtt_slug}
           </p>
-          <div style='background:#0a0d1a; border-radius:8px; padding:10px; margin-top:8px;
-                      font-family:monospace; font-size:0.78rem; color:#a855f7;'>
+          <div style='background:{tc['bg_sidebar']}; border:1px solid {tc['card_border']}; border-radius:8px; padding:10px; margin-top:8px;
+                      font-family:monospace; font-size:0.78rem; color:{tc['purple']};'>
             {{<br>
             &nbsp;&nbsp;"command": "SWITCH_PHASE",<br>
             &nbsp;&nbsp;"target_lane": "South",<br>
@@ -2413,9 +2977,9 @@ elif page == "🔌 DAE Integration":
         """, unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div style='background:#1a1d2e; border:1px solid #2d3150; border-radius:10px; padding:14px 18px; margin:8px 0;'>
-      <b style='color:#ffd93d;'>The mathematical loop closes:</b>
-      <span style='color:#9ca3af;'>
+    <div style='background: var(--card-bg-start); border: 1px solid var(--card-border); border-radius:10px; padding:14px 18px; margin:8px 0;'>
+      <b style='color: var(--accent);'>The mathematical loop closes:</b>
+      <span style='color: var(--text-sidebar-muted);'>
         ATLAS M3 measures branching ratio <b>n={_n:.3f}</b> on <b>{_top_corr}</b> —
         {int(_n*100)}% of incidents statistically trigger aftershocks over <b>{_decay:.0f} min</b>.
         DAE reacts in <b>42ms</b>. ATLAS forecasts <b>{_forecast_hrs} hours</b> ahead.
@@ -2457,29 +3021,29 @@ elif page == "🔌 DAE Integration":
                        _ns.get('decision_breakdown', {}).get('reason', '-'))
             _emerg_txt = 'EMERGENCY — PREEMPTING' if _emerg_any else 'No emergencies'
             st.markdown(f"""
-            <div class='metric-card' style='border-color:#a855f744;'>
-              <p style='color:#a855f7; font-size:0.8rem; font-weight:700; margin:0;'>
+            <div class='metric-card' style='border-color:{tc['purple']}44;'>
+              <p style='color:{tc['purple']}; font-size:0.8rem; font-weight:700; margin:0;'>
                 DAE — Node {_nid} | LIVE | {_t_phase:.0f}s in phase
               </p>
               <div style='margin-top:10px; line-height:1.9;'>
-                <span style='color:#10b981; font-weight:700;'>GREEN: {_active_lane}</span><br>
-                <span style='color:#9ca3af; font-size:0.82rem;'>
+                <span style='color:{tc['green']}; font-weight:700;'>GREEN: {_active_lane}</span><br>
+                <span style='color:var(--text-sidebar-muted); font-size:0.82rem;'>
                   Top priority: {_winner} (score {_winner_score:.0f})<br>
                   Peak density: {_max_density} veh | Max wait: {_max_wait:.0f}s<br>
                   {_emerg_txt}<br>
-                  <b style='color:#e5e7eb;'>{str(_reason)[:65]}</b>
+                  <b style='color: var(--text-main);'>{str(_reason)[:65]}</b>
                 </span>
               </div>
             </div>
             """, unsafe_allow_html=True)
         else:
-            st.markdown("""
-            <div class='metric-card' style='border-color:#a855f744;'>
-              <p style='color:#a855f7; font-size:0.8rem; font-weight:700; margin:0;'>DAE — 42ms Signal Decision</p>
-              <p style='color:#9ca3af; font-size:0.75rem;'>Start DAE backend at port 8000 to see live data</p>
+            st.markdown(f"""
+            <div class='metric-card' style='border-color:{tc['purple']}44;'>
+              <p style='color:{tc['purple']}; font-size:0.8rem; font-weight:700; margin:0;'>DAE — 42ms Signal Decision</p>
+              <p style='color:var(--text-sidebar-muted); font-size:0.75rem;'>Start DAE backend at port 8000 to see live data</p>
               <div style='margin-top:10px; line-height:1.7;'>
-                <span style='color:#ff6b6b; font-weight:700;'>SWITCH_PHASE — SOUTH</span><br>
-                <span style='color:#9ca3af; font-size:0.82rem;'>
+                <span style='color:{tc['red']}; font-weight:700;'>SWITCH_PHASE — SOUTH</span><br>
+                <span style='color:var(--text-sidebar-muted); font-size:0.82rem;'>
                   Emergency detected | Utility score 512<br>
                   Pre-empting current green — ambulance route<br>
                   <b>Decision latency: 42ms</b>
@@ -2493,16 +3057,16 @@ elif page == "🔌 DAE Integration":
         _n_corr = _hw_corridors.get(_top_risk_corr, {}).get('branching_ratio', 0)
         _dec_corr = _hw_corridors.get(_top_risk_corr, {}).get('mean_excitation_decay_mins', 0)
         st.markdown(f"""
-        <div class='metric-card' style='border-color:#00d4ff44;'>
-          <p style='color:#00d4ff; font-size:0.8rem; font-weight:700; margin:0;'>
+        <div class='metric-card' style='border-color:{tc['accent']}44;'>
+          <p style='color:{tc['accent']}; font-size:0.8rem; font-weight:700; margin:0;'>
             ATLAS M6 Dispatch | {_cur_hour:02d}:00 IST | LIVE
           </p>
-          <p style='color:#9ca3af; font-size:0.75rem;'>Highest-risk corridor right now (Hawkes + EVT)</p>
+          <p style='color:var(--text-sidebar-muted); font-size:0.75rem;'>Highest-risk corridor right now (Hawkes + EVT)</p>
           <div style='margin-top:10px; line-height:1.9;'>
             <span style='color:{_ic}; font-weight:700;'>
               CODE {_risk_label_live} — {_top_risk_corr}
             </span><br>
-            <span style='color:#9ca3af; font-size:0.82rem;'>
+            <span style='color:var(--text-sidebar-muted); font-size:0.82rem;'>
               ATLAS Risk Score: <b style='color:{_ic};'>{_top_risk_score}/100</b><br>
               Hawkes n: {_n_corr:.3f} | Decay: {_dec_corr:.0f} min<br>
               <b>Forecast horizon: {_forecast_hrs} hours</b>
@@ -2531,20 +3095,20 @@ elif page == "🔌 DAE Integration":
         if _dae_online:
             _nodes_str = ', '.join(_dae_health.get('active_nodes', []))
             st.markdown(f"""
-            <div class='metric-card' style='border-color:#10b98144;'>
-              <p style='color:#10b981; font-weight:700;'>DAE ONLINE</p>
-              <p style='color:#9ca3af; font-size:0.82rem;'>
+            <div class='metric-card' style='border-color:{tc['green']}44;'>
+              <p style='color:{tc['green']}; font-weight:700;'>DAE ONLINE</p>
+              <p style='color:var(--text-sidebar-muted); font-size:0.82rem;'>
                 Nodes: {_nodes_str}<br>
                 Ambulances: {_dae_health.get('active_ambulances', 0)}<br>
                 Tick: #{_dae_health.get('tick', 0)}<br>
-                Frontend: <a href='http://localhost:3000' target='_blank' style='color:#00d4ff;'>localhost:3000</a>
+                Frontend: <a href='http://localhost:3000' target='_blank' style='color:{tc['accent']};'>localhost:3000</a>
               </p>
             </div>""", unsafe_allow_html=True)
         else:
-            st.markdown("""
-            <div class='metric-card' style='border-color:#ff6b6b33;'>
-              <p style='color:#ff6b6b; font-weight:700;'>DAE OFFLINE</p>
-              <p style='color:#9ca3af; font-size:0.82rem;'>
+            st.markdown(f"""
+            <div class='metric-card' style='border-color:{tc['red']}33;'>
+              <p style='color:{tc['red']}; font-weight:700;'>DAE OFFLINE</p>
+              <p style='color:var(--text-sidebar-muted); font-size:0.82rem;'>
                 <code>cd dae/traffic_agent</code><br>
                 <code>uvicorn main:app --port 8000</code>
               </p>
@@ -2576,7 +3140,7 @@ elif page == "🔌 DAE Integration":
                         'Emergencies': _emerg_c,
                     })
                 if _rows_dae:
-                    st.dataframe(pd.DataFrame(_rows_dae), use_container_width=True, hide_index=True)
+                    st.markdown(pd.DataFrame(_rows_dae).to_html(index=False), unsafe_allow_html=True)
                     st.caption('Live — R to refresh. Spawn ambulance at localhost:3000 to see emergency preemption.')
             except Exception:
                 st.info('DAE online — waiting for first simulation tick.')
@@ -2589,21 +3153,21 @@ elif page == "🔌 DAE Integration":
     _sum_col1, _sum_col2, _sum_col3 = st.columns(3)
     _sum_col1.markdown(f"""
     <div class='metric-card'>
-      <p style='color:#9ca3af; font-size:0.8rem; margin:0;'>ATLAS Forecast Horizon</p>
-      <h2 style='color:#00d4ff; margin:4px 0;'>{_forecast_hrs}h</h2>
-      <p style='color:#9ca3af; font-size:0.8rem;'>Hawkes excitation window on {_top_corr}</p>
+      <p style='color:var(--text-sidebar-muted); font-size:0.8rem; margin:0;'>ATLAS Forecast Horizon</p>
+      <h2 style='color:{tc['accent']}; margin:4px 0;'>{_forecast_hrs}h</h2>
+      <p style='color:var(--text-sidebar-muted); font-size:0.8rem;'>Hawkes excitation window on {_top_corr}</p>
     </div>""", unsafe_allow_html=True)
     _sum_col2.markdown(f"""
     <div class='metric-card'>
-      <p style='color:#9ca3af; font-size:0.8rem; margin:0;'>DAE Decision Latency</p>
-      <h2 style='color:#a855f7; margin:4px 0;'>42ms</h2>
-      <p style='color:#9ca3af; font-size:0.8rem;'>LangChain Master Agent per intersection tick</p>
+      <p style='color:var(--text-sidebar-muted); font-size:0.8rem; margin:0;'>DAE Decision Latency</p>
+      <h2 style='color:{tc['purple']}; margin:4px 0;'>42ms</h2>
+      <p style='color:var(--text-sidebar-muted); font-size:0.8rem;'>LangChain Master Agent per intersection tick</p>
     </div>""", unsafe_allow_html=True)
     _dae_ticks = _dae_health.get('tick', 0) if _dae_health else 0
     _sum_col3.markdown(f"""
     <div class='metric-card'>
-      <p style='color:#9ca3af; font-size:0.8rem; margin:0;'>DAE Simulation Ticks</p>
-      <h2 style='color:#10b981; margin:4px 0;'>#{_dae_ticks}</h2>
-      <p style='color:#9ca3af; font-size:0.8rem;'>{'Running' if _dae_online else 'Offline — start uvicorn on :8000'}</p>
+      <p style='color:var(--text-sidebar-muted); font-size:0.8rem; margin:0;'>DAE Simulation Ticks</p>
+      <h2 style='color:{tc['green']}; margin:4px 0;'>#{_dae_ticks}</h2>
+      <p style='color:var(--text-sidebar-muted); font-size:0.8rem;'>{'Running' if _dae_online else 'Offline — start uvicorn on :8000'}</p>
     </div>""", unsafe_allow_html=True)
 
