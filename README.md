@@ -6,13 +6,13 @@
 > Live 3D Simulation (DAE): [https://atlas-lzk5n1olh-pranavi-pulluris-projects.vercel.app](https://atlas-lzk5n1olh-pranavi-pulluris-projects.vercel.app)  
 > Live Backend API: [https://dae-backend-4w9d.onrender.com/health](https://dae-backend-4w9d.onrender.com/health)
 
-> ⚠️ **Note:** The Render backend (free tier) may take up to 60 seconds to wake from cold start. If ATLAS Screen 11 shows DAE OFFLINE, visit the health endpoint directly and wait 60 seconds, then refresh.
+> **Note:** The Render backend (free tier) may take up to 60 seconds to wake from cold start. If ATLAS Screen 11 shows DAE OFFLINE, visit the health endpoint directly and wait 60 seconds, then refresh.
 
 ---
 
 ## 📦 Dataset & Problem Statement
 
-Built for the **Flipkart GRiD x HackerEarth** hackathon — Problem Statement: **Event-Driven Congestion (Planned & Unplanned)**.
+Built for the **Flipkart Gridlock 2.0** hackathon — Problem Statement: **Event-Driven Congestion (Planned & Unplanned)**.
 
 > *Operational Challenge*: Political rallies, festivals, sports events, construction activities, and sudden gatherings create localized traffic breakdowns. Event impact is not quantified in advance, resource deployment is experience-driven, and there is no post-event learning system.
 
@@ -137,7 +137,7 @@ docker compose up --build
 The foundation data engine. Standardizes timestamps to IST, imputes missing attributes (e.g. dominant vehicle type), cleans corridor names, filters events outside monitored zones, maps spatial coordinates, and classifies incidents as **Acute** (sudden, transient — breakdowns, accidents) or **Chronic** (persistent infrastructure issues — potholes, waterlogging).
 
 ### M1: EM Gaussian Mixture Model (`m1_em_mixture.py`)
-Fits an Expectation-Maximization Gaussian Mixture Model on temporal features and event-duration distributions to decouple the overlapping density signatures of acute vs. chronic events, assigning cluster-membership probabilities so the system can separate structural bottlenecks from random accidents.
+Fits an Expectation-Maximization Gaussian Mixture Model on log-transformed event resolution times (`log_resolution_mins`) to decouple the overlapping density signatures of acute vs. chronic events, assigning cluster-membership probabilities so the system can separate structural bottlenecks from random accidents.
 
 ### M2: Causal Cause Network (`m2_cause_graph.py`)
 Calculates empirical conditional transition probabilities between sequential events at adjacent nodes, constructing a directed cause graph showing how a chronic issue (e.g. waterlogging) propagates into downstream acute issues (e.g. collisions). Merges static baseline co-occurrence limits with live dataset values to build the causal link matrix.
@@ -175,7 +175,7 @@ Also computes diversion routes mapped to venue/crowd thresholds and generates fo
 ## 📄 Prior Research
 
 The DAE tactical layer builds on our own ongoing research:
-*"Decentralized Agentic Edge Traffic Management System for Predictive Emergency Preemption"* (currently under peer review - attached in repo)
+*"Decentralized Agentic Edge Traffic Management System for Predictive Emergency Preemption"* (currently under TEMSMET review - attached in repo)
 
 Results below were benchmarked on physical Jetson Nano hardware as part of this research:
 *   **42ms** latency (tactical signal-control loop)
