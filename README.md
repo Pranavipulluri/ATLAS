@@ -2,7 +2,7 @@
 
 > **Strategic macro-forecasting meets decentralized micro-signal preemption.**
 >
-> Live Dashboard (ATLAS): [https://jxryzmpteshsj9nou63kqu.streamlit.app](https://jxryzmpteshsj9nou63kqu.streamlit.app)  
+> Live Dashboard (ATLAS): [https://atlasvdae.streamlit.app/](https://atlasvdae.streamlit.app/)  
 > Live 3D Simulation (DAE): [https://atlas-lzk5n1olh-pranavi-pulluris-projects.vercel.app](https://atlas-lzk5n1olh-pranavi-pulluris-projects.vercel.app)  
 > Live Backend API: [https://dae-backend-4w9d.onrender.com/health](https://dae-backend-4w9d.onrender.com/health)
 
